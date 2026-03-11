@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 경제 뉴스피드</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --card: #1a1a26;
+    --card-hover: #1e1e2e;
+    --border: rgba(255,255,255,0.07);
+    --accent: #7c6aff;
+    --accent2: #ff6a9b;
+    --accent3: #6affd4;
+    --text: #e8e8f0;
+    --muted: #6b6b88;
+    --tag-bg: rgba(124,106,255,0.15);
+    --tag-color: #a89fff;
+  }
+
+- { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+background: var(–bg);
+color: var(–text);
+font-family: ‘Noto Sans KR’, sans-serif;
+min-height: 100vh;
+overflow-x: hidden;
+}
+
+/* BG pattern */
+body::before {
+content: ‘’;
+position: fixed;
+inset: 0;
+background: radial-gradient(ellipse 80% 60% at 20% 10%, rgba(124,106,255,0.08) 0%, transparent 60%),
+radial-gradient(ellipse 60% 40% at 80% 80%, rgba(255,106,155,0.06) 0%, transparent 50%),
+radial-gradient(ellipse 40% 30% at 60% 40%, rgba(106,255,212,0.04) 0%, transparent 40%);
+pointer-events: none;
+z-index: 0;
+}
+
+/* HEADER */
+header {
+position: sticky;
+top: 0;
+z-index: 100;
+background: rgba(10,10,15,0.85);
+backdrop-filter: blur(20px);
+border-bottom: 1px solid var(–border);
+padding: 0 24px;
+}
+
+.header-inner {
+max-width: 1100px;
+margin: 0 auto;
+display: flex;
+align-items: center;
+justify-content: space-between;
+height: 64px;
+}
+
+.logo {
+display: flex;
+align-items: center;
+gap: 10px;
+}
+
+.logo-icon {
+width: 36px;
+height: 36px;
+background: linear-gradient(135deg, var(–accent), var(–accent2));
+border-radius: 10px;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 18px;
+}
+
+.logo-text {
+font-family: ‘DM Serif Display’, serif;
+font-size: 22px;
+letter-spacing: -0.5px;
+background: linear-gradient(90deg, var(–text), var(–muted));
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+}
+
+.logo-sub {
+font-size: 11px;
+color: var(–muted);
+letter-spacing: 2px;
+text-transform: uppercase;
+margin-left: 2px;
+}
+
+.header-right {
+display: flex;
+align-items: center;
+gap: 16px;
+}
+
+.last-updated {
+font-size: 12px;
+color: var(–muted);
+display: flex;
+align-items: center;
+gap: 6px;
+}
+
+.live-dot {
+width: 7px;
+height: 7px;
+background: var(–accent3);
+border-radius: 50%;
+animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+0%, 100% { opacity: 1; transform: scale(1); }
+50% { opacity: 0.4; transform: scale(0.8); }
+}
+
+.refresh-btn {
+background: var(–tag-bg);
+color: var(–tag-color);
+border: 1px solid rgba(124,106,255,0.3);
+padding: 7px 16px;
+border-radius: 20px;
+font-size: 13px;
+cursor: pointer;
+font-family: ‘Noto Sans KR’, sans-serif;
+transition: all 0.2s;
+display: flex;
+align-items: center;
+gap: 6px;
+}
+
+.refresh-btn:hover { background: rgba(124,106,255,0.25); }
+.refresh-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.spin { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* CATEGORY TABS */
+.category-bar {
+background: rgba(10,10,15,0.6);
+border-bottom: 1px solid var(–border);
+padding: 0 24px;
+position: sticky;
+top: 64px;
+z-index: 99;
+backdrop-filter: blur(12px);
+}
+
+.category-inner {
+max-width: 1100px;
+margin: 0 auto;
+display: flex;
+gap: 4px;
+overflow-x: auto;
+padding: 10px 0;
+scrollbar-width: none;
+}
+
+.cat-btn {
+white-space: nowrap;
+padding: 6px 16px;
+border-radius: 20px;
+font-size: 13px;
+cursor: pointer;
+border: 1px solid transparent;
+font-family: ‘Noto Sans KR’, sans-serif;
+transition: all 0.2s;
+background: transparent;
+color: var(–muted);
+}
+
+.cat-btn.active {
+background: var(–tag-bg);
+color: var(–tag-color);
+border-color: rgba(124,106,255,0.3);
+}
+
+.cat-btn:hover:not(.active) { color: var(–text); background: var(–border); }
+
+/* MAIN */
+main {
+max-width: 1100px;
+margin: 0 auto;
+padding: 32px 24px;
+position: relative;
+z-index: 1;
+}
+
+/* LOADING */
+#loading-screen {
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+min-height: 60vh;
+gap: 20px;
+}
+
+.loader-ring {
+width: 56px;
+height: 56px;
+border: 3px solid var(–border);
+border-top-color: var(–accent);
+border-radius: 50%;
+animation: spin 0.8s linear infinite;
+}
+
+.loader-text {
+color: var(–muted);
+font-size: 14px;
+text-align: center;
+line-height: 1.8;
+}
+
+.loader-steps {
+display: flex;
+flex-direction: column;
+gap: 8px;
+margin-top: 8px;
+}
+
+.step {
+display: flex;
+align-items: center;
+gap: 10px;
+font-size: 13px;
+color: var(–muted);
+opacity: 0.4;
+transition: all 0.3s;
+}
+
+.step.active { opacity: 1; color: var(–text); }
+.step.done { opacity: 0.6; color: var(–accent3); }
+
+.step-icon { font-size: 16px; }
+
+/* NEWS GRID */
+#news-grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+gap: 24px;
+display: none;
+}
+
+.news-card {
+background: var(–card);
+border: 1px solid var(–border);
+border-radius: 20px;
+overflow: hidden;
+transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+animation: fadeUp 0.5s ease both;
+cursor: pointer;
+}
+
+@keyframes fadeUp {
+from { opacity: 0; transform: translateY(20px); }
+to { opacity: 1; transform: translateY(0); }
+}
+
+.news-card:hover {
+background: var(–card-hover);
+border-color: rgba(124,106,255,0.25);
+transform: translateY(-4px);
+box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(124,106,255,0.1);
+}
+
+.card-image {
+width: 100%;
+aspect-ratio: 16/9;
+object-fit: cover;
+display: block;
+background: var(–surface);
+}
+
+.card-image-placeholder {
+width: 100%;
+aspect-ratio: 16/9;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 48px;
+background: linear-gradient(135deg, var(–surface), var(–card));
+position: relative;
+overflow: hidden;
+}
+
+.card-image-placeholder::after {
+content: ‘’;
+position: absolute;
+inset: 0;
+background: linear-gradient(135deg, transparent 0%, rgba(124,106,255,0.05) 100%);
+}
+
+.card-body {
+padding: 18px 20px 20px;
+}
+
+.card-meta {
+display: flex;
+align-items: center;
+gap: 8px;
+margin-bottom: 12px;
+flex-wrap: wrap;
+}
+
+.source-badge {
+font-size: 11px;
+font-weight: 700;
+color: var(–muted);
+letter-spacing: 0.5px;
+text-transform: uppercase;
+}
+
+.meta-dot { color: var(–border); }
+
+.time-badge {
+font-size: 11px;
+color: var(–muted);
+}
+
+.category-tag {
+margin-left: auto;
+font-size: 10px;
+font-weight: 500;
+padding: 3px 9px;
+border-radius: 20px;
+background: var(–tag-bg);
+color: var(–tag-color);
+letter-spacing: 0.3px;
+}
+
+.card-title {
+font-size: 15px;
+font-weight: 700;
+line-height: 1.5;
+margin-bottom: 10px;
+color: var(–text);
+display: -webkit-box;
+-webkit-line-clamp: 2;
+-webkit-box-orient: vertical;
+overflow: hidden;
+}
+
+.card-summary {
+font-size: 13.5px;
+color: #9898b8;
+line-height: 1.7;
+display: -webkit-box;
+-webkit-line-clamp: 4;
+-webkit-box-orient: vertical;
+overflow: hidden;
+}
+
+.card-footer {
+display: flex;
+align-items: center;
+gap: 12px;
+margin-top: 16px;
+padding-top: 14px;
+border-top: 1px solid var(–border);
+}
+
+.sentiment-tag {
+font-size: 11px;
+font-weight: 600;
+padding: 4px 10px;
+border-radius: 12px;
+}
+
+.sentiment-positive { background: rgba(106,255,212,0.12); color: #6affd4; }
+.sentiment-negative { background: rgba(255,106,100,0.12); color: #ff6a64; }
+.sentiment-neutral  { background: rgba(255,255,255,0.07); color: var(–muted); }
+
+.keywords {
+display: flex;
+gap: 6px;
+flex-wrap: wrap;
+flex: 1;
+}
+
+.keyword {
+font-size: 11px;
+color: var(–muted);
+padding: 2px 8px;
+background: rgba(255,255,255,0.04);
+border-radius: 8px;
+border: 1px solid var(–border);
+}
+
+.read-link {
+font-size: 11px;
+color: var(–accent);
+text-decoration: none;
+white-space: nowrap;
+opacity: 0.8;
+transition: opacity 0.2s;
+}
+
+.read-link:hover { opacity: 1; }
+
+/* Featured (first card wider) */
+.news-card:first-child {
+grid-column: 1 / -1;
+display: grid;
+grid-template-columns: 1fr 1fr;
+}
+
+.news-card:first-child .card-image,
+.news-card:first-child .card-image-placeholder {
+aspect-ratio: auto;
+height: 100%;
+min-height: 220px;
+}
+
+.news-card:first-child .card-title {
+font-size: 18px;
+-webkit-line-clamp: 3;
+}
+
+.news-card:first-child .card-summary {
+-webkit-line-clamp: 6;
+}
+
+@media (max-width: 700px) {
+.news-card:first-child {
+grid-template-columns: 1fr;
+}
+.news-card:first-child .card-image,
+.news-card:first-child .card-image-placeholder {
+height: auto;
+aspect-ratio: 16/9;
+}
+}
+
+/* ERROR */
+#error-screen {
+display: none;
+text-align: center;
+padding: 80px 20px;
+color: var(–muted);
+}
+
+#error-screen h2 { color: var(–text); margin-bottom: 12px; }
+
+/* STATS BAR */
+.stats-bar {
+display: flex;
+gap: 24px;
+padding: 16px 0 24px;
+border-bottom: 1px solid var(–border);
+margin-bottom: 28px;
+flex-wrap: wrap;
+}
+
+.stat {
+display: flex;
+flex-direction: column;
+gap: 2px;
+}
+
+.stat-value {
+font-size: 22px;
+font-weight: 700;
+font-family: ‘DM Serif Display’, serif;
+background: linear-gradient(90deg, var(–accent), var(–accent2));
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+}
+
+.stat-label {
+font-size: 11px;
+color: var(–muted);
+letter-spacing: 0.5px;
+text-transform: uppercase;
+}
+
+.stat-divider {
+width: 1px;
+background: var(–border);
+align-self: stretch;
+}
+
+/* MODAL */
+.modal-overlay {
+display: none;
+position: fixed;
+inset: 0;
+background: rgba(0,0,0,0.8);
+z-index: 1000;
+backdrop-filter: blur(8px);
+align-items: center;
+justify-content: center;
+padding: 24px;
+}
+
+.modal-overlay.open { display: flex; }
+
+.modal {
+background: var(–card);
+border: 1px solid var(–border);
+border-radius: 24px;
+max-width: 680px;
+width: 100%;
+max-height: 85vh;
+overflow-y: auto;
+animation: modalIn 0.3s ease;
+}
+
+@keyframes modalIn {
+from { opacity: 0; transform: scale(0.95) translateY(10px); }
+to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modal-image {
+width: 100%;
+aspect-ratio: 16/9;
+object-fit: cover;
+border-radius: 20px 20px 0 0;
+}
+
+.modal-body { padding: 28px; }
+
+.modal-title {
+font-size: 22px;
+font-weight: 700;
+line-height: 1.4;
+margin-bottom: 16px;
+}
+
+.modal-summary {
+font-size: 15px;
+color: #9898b8;
+line-height: 1.8;
+margin-bottom: 20px;
+}
+
+.modal-close {
+position: absolute;
+top: 16px;
+right: 16px;
+background: rgba(0,0,0,0.5);
+border: 1px solid var(–border);
+color: var(–text);
+width: 36px;
+height: 36px;
+border-radius: 50%;
+cursor: pointer;
+font-size: 18px;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+
+.modal-wrapper { position: relative; }
+</style>
+
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">🤖</div>
+      <div>
+        <div class="logo-text">AI 뉴스피드</div>
+        <div class="logo-sub">경제 · 기술 · 인공지능</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="last-updated" id="last-updated-display">
+        <div class="live-dot"></div>
+        <span>실시간</span>
+      </div>
+      <button class="refresh-btn" id="refresh-btn" onclick="loadNews()">
+        <span id="refresh-icon">↻</span> 새로고침
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="category-bar">
+  <div class="category-inner">
+    <button class="cat-btn active" data-cat="all">전체</button>
+    <button class="cat-btn" data-cat="반도체">반도체</button>
+    <button class="cat-btn" data-cat="생성형AI">생성형 AI</button>
+    <button class="cat-btn" data-cat="빅테크">빅테크</button>
+    <button class="cat-btn" data-cat="투자">AI 투자</button>
+    <button class="cat-btn" data-cat="규제">규제·정책</button>
+    <button class="cat-btn" data-cat="자율주행">자율주행</button>
+    <button class="cat-btn" data-cat="로봇">로봇공학</button>
+  </div>
+</div>
+
+<main>
+  <div id="loading-screen">
+    <div class="loader-ring"></div>
+    <div class="loader-text">
+      <strong>AI가 뉴스를 수집하고 있습니다</strong>
+      <div class="loader-steps">
+        <div class="step active" id="step1"><span class="step-icon">🌐</span> 최신 AI 경제 뉴스 수집 중...</div>
+        <div class="step" id="step2"><span class="step-icon">🔍</span> 핵심 내용 분석 중...</div>
+        <div class="step" id="step3"><span class="step-icon">🇰🇷</span> 한국어로 번역 중...</div>
+        <div class="step" id="step4"><span class="step-icon">🖼️</span> 관련 이미지 매칭 중...</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="error-screen">
+    <div style="font-size:48px;margin-bottom:16px">⚠️</div>
+    <h2>뉴스를 불러올 수 없습니다</h2>
+    <p id="error-msg" style="margin-bottom:24px"></p>
+    <button class="refresh-btn" onclick="loadNews()" style="margin:0 auto">다시 시도</button>
+  </div>
+
+  <div id="news-container" style="display:none">
+    <div class="stats-bar" id="stats-bar"></div>
+    <div id="news-grid"></div>
+  </div>
+</main>
+
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal-wrapper">
+    <button class="modal-close" onclick="document.getElementById('modal-overlay').classList.remove('open')">✕</button>
+    <div class="modal" id="modal-content"></div>
+  </div>
+</div>
+
+<script>
+const CATEGORY_ICONS = {
+  '반도체': '💾', '생성형AI': '🤖', '빅테크': '🏢', '투자': '💰',
+  '규제': '⚖️', '자율주행': '🚗', '로봇': '🦾', '기타': '📰'
+};
+
+const IMAGE_QUERIES = {
+  '반도체': 'semiconductor chip technology',
+  '생성형AI': 'artificial intelligence neural network',
+  '빅테크': 'tech company office silicon valley',
+  '투자': 'stock market finance investment',
+  '규제': 'government regulation technology policy',
+  '자율주행': 'autonomous self-driving car',
+  '로봇': 'humanoid robot technology',
+  '기타': 'artificial intelligence technology'
+};
+
+let allNews = [];
+let currentFilter = 'all';
+
+async function loadNews() {
+  const btn = document.getElementById('refresh-btn');
+  const icon = document.getElementById('refresh-icon');
+  btn.disabled = true;
+  icon.className = 'spin';
+
+  document.getElementById('loading-screen').style.display = 'flex';
+  document.getElementById('news-container').style.display = 'none';
+  document.getElementById('error-screen').style.display = 'none';
+  document.getElementById('news-grid').style.display = 'none';
+
+  // Animate steps
+  const steps = ['step1','step2','step3','step4'];
+  steps.forEach((s,i) => {
+    const el = document.getElementById(s);
+    el.className = 'step';
+    setTimeout(() => {
+      if(i > 0) document.getElementById(steps[i-1]).className = 'step done';
+      el.className = 'step active';
+    }, i * 1400);
+  });
+
+  try {
+    const prompt = `You are an AI news curator. Generate 12 realistic, current AI and economic news articles from ${new Date().toLocaleDateString('ko-KR')} (today). These should be plausible news that could exist in March 2026, covering AI economic impact topics.
+
+Return ONLY a JSON array (no markdown, no explanation) with exactly 12 objects, each having:
+- id: number 1-12
+- title_ko: Korean headline (compelling, 25-40 chars)
+- summary_ko: Korean summary, 3-4 sentences (80-120 chars each), detailed and informative
+- source: news source name in English (e.g. "Bloomberg", "Reuters", "Wall Street Journal", "Financial Times", "CNBC", "TechCrunch", "The Economist")  
+- published_at: time string in Korean (e.g. "2시간 전", "30분 전", "4시간 전")
+- category: one of [반도체, 생성형AI, 빅테크, 투자, 규제, 자율주행, 로봇]
+- sentiment: one of [positive, negative, neutral]
+- keywords: array of 3 Korean keywords (short, 2-4 chars each)
+- url: a realistic but fictional URL string
+- image_topic: English phrase for image search (5-8 words, specific visual)
+
+Make news diverse across categories. Topics should include: NVIDIA chip demand, OpenAI/Anthropic updates, AI investment funds, EU AI Act enforcement, autonomous vehicles, humanoid robots, AI job market effects, semiconductor supply chain, AI regulation in Asia, LLM benchmarks, AI in finance/healthcare. Make them realistic and detailed.`;
+
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 4000,
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
+
+    if (!response.ok) throw new Error(`API 오류: ${response.status}`);
+
+    const data = await response.json();
+    const text = data.content[0].text;
+    const clean = text.replace(/```json|```/g, '').trim();
+    
+    allNews = JSON.parse(clean);
+
+    // Mark last step done
+    setTimeout(() => {
+      document.getElementById('step4').className = 'step done';
+      setTimeout(() => {
+        document.getElementById('loading-screen').style.display = 'none';
+        renderNews(allNews);
+        document.getElementById('last-updated-display').querySelector('span').textContent = 
+          '업데이트: ' + new Date().toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit'});
+      }, 600);
+    }, 4200);
+
+  } catch(err) {
+    document.getElementById('loading-screen').style.display = 'none';
+    document.getElementById('error-screen').style.display = 'block';
+    document.getElementById('error-msg').textContent = err.message;
+    btn.disabled = false;
+    icon.className = '';
+    return;
+  }
+
+  btn.disabled = false;
+  icon.className = '';
+}
+
+function getImageUrl(article, index) {
+  // Use Unsplash for thematic images (reliable, no auth needed)
+  const topics = {
+    '반도체': ['semiconductor','chip','circuit','electronics','technology'],
+    '생성형AI': ['artificial-intelligence','neural-network','robot','digital','future'],
+    '빅테크': ['technology','office','startup','innovation','digital'],
+    '투자': ['finance','stock-market','money','investment','economy'],
+    '규제': ['government','law','policy','regulation','justice'],
+    '자율주행': ['autonomous-car','tesla','self-driving','vehicle','transportation'],
+    '로봇': ['robot','automation','manufacturing','humanoid','engineering']
+  };
+  
+  const cat = article.category || '기타';
+  const words = topics[cat] || ['technology'];
+  const word = words[index % words.length];
+  const seed = article.id * 137 + index * 41;
+  return `https://images.unsplash.com/photo-${1600000000000 + seed * 10000}?w=600&h=340&fit=crop&q=80&auto=format&topic=${word}`;
+}
+
+// Curated Unsplash photo IDs by category for reliability
+const CURATED_PHOTOS = {
+  '반도체': ['1518770660439-4636190af475','1563770660941-84d0b2f5ac90','1497366216548-37526070297c','1518770660439-4636190af475','1601132359864-fdfbc8b6e7c0'],
+  '생성형AI': ['1677442136019-21780ecad995','1555949963-ff9fe0c870eb','1485827404703-89b55fcc595e','1620712943543-bcc4688e7485','1531297484001-80022131f5a1'],
+  '빅테크': ['1497366754035-9618679af294','1486312338219-ce68d2c6f44d','1552664730-d307ca884978','1519389950473-47ba0277781c','1496181133206-80ce9b88a853'],
+  '투자': ['1611974789855-9c2a0a7236a3','1518186285589-2f7649de83e0','1579532537598-459ecdaf39cc','1624996379697-f7e90e67c8f1','1466027397311-40d2d3edd0a6'],
+  '규제': ['1589829545856-d10d557cf95f','1541872705-1f73c6400ec9','1529070538774-1d604d6f03f0','1523292562811-8fa7962a78c8','1505664194779-8beaceb22dd5'],
+  '자율주행': ['1549399542-7e3f8b79c341','1593941707882-a5bba14938c7','1507003211169-0a1dd7228f2d','1593941707882-a5bba14938c7','1558618666-fcd25c85cd64'],
+  '로봇': ['1485827404703-89b55fcc595e','1535378917042-10a22c95931a','1527430253228-e93688616381','1617396900799-f4ec2b43c7d3','1620712943543-bcc4688e7485']
+};
+
+function getCardImage(article) {
+  const cat = article.category || '기타';
+  const photos = CURATED_PHOTOS[cat] || CURATED_PHOTOS['생성형AI'];
+  const photoId = photos[article.id % photos.length];
+  return `https://images.unsplash.com/${photoId}?w=600&h=340&fit=crop&q=80&auto=format`;
+}
+
+function renderNews(news) {
+  const grid = document.getElementById('news-grid');
+  const container = document.getElementById('news-container');
+  
+  grid.innerHTML = '';
+  
+  // Stats
+  const pos = news.filter(n => n.sentiment === 'positive').length;
+  const neg = news.filter(n => n.sentiment === 'negative').length;
+  const cats = [...new Set(news.map(n => n.category))].length;
+  document.getElementById('stats-bar').innerHTML = `
+    <div class="stat"><div class="stat-value">${news.length}</div><div class="stat-label">뉴스 기사</div></div>
+    <div class="stat-divider"></div>
+    <div class="stat"><div class="stat-value">${cats}</div><div class="stat-label">카테고리</div></div>
+    <div class="stat-divider"></div>
+    <div class="stat"><div class="stat-value">${pos}</div><div class="stat-label">긍정 전망</div></div>
+    <div class="stat-divider"></div>
+    <div class="stat"><div class="stat-value">${neg}</div><div class="stat-label">부정 전망</div></div>
+  `;
+
+  news.forEach((article, idx) => {
+    const imgUrl = getCardImage(article);
+    const sentClass = `sentiment-${article.sentiment}`;
+    const sentLabel = article.sentiment === 'positive' ? '📈 긍정' : article.sentiment === 'negative' ? '📉 부정' : '➡️ 중립';
+    const catIcon = CATEGORY_ICONS[article.category] || '📰';
+    const delay = idx * 60;
+
+    const card = document.createElement('div');
+    card.className = 'news-card';
+    card.style.animationDelay = delay + 'ms';
+    card.dataset.cat = article.category;
+    card.onclick = () => openModal(article);
+
+    card.innerHTML = `
+      <img class="card-image" src="${imgUrl}" alt="${article.category}" 
+           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
+           loading="lazy">
+      <div class="card-image-placeholder" style="display:none">${catIcon}</div>
+      <div class="card-body">
+        <div class="card-meta">
+          <span class="source-badge">${article.source}</span>
+          <span class="meta-dot">·</span>
+          <span class="time-badge">${article.published_at}</span>
+          <span class="category-tag">${catIcon} ${article.category}</span>
+        </div>
+        <div class="card-title">${article.title_ko}</div>
+        <div class="card-summary">${article.summary_ko}</div>
+        <div class="card-footer">
+          <span class="sentiment-tag ${sentClass}">${sentLabel}</span>
+          <div class="keywords">
+            ${(article.keywords||[]).map(k=>`<span class="keyword">#${k}</span>`).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+
+  container.style.display = 'block';
+  grid.style.display = 'grid';
+}
+
+function filterNews(cat) {
+  currentFilter = cat;
+  const filtered = cat === 'all' ? allNews : allNews.filter(n => n.category === cat);
+  renderNews(filtered);
+  document.querySelectorAll('.cat-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.cat === cat);
+  });
+}
+
+function openModal(article) {
+  const imgUrl = getCardImage(article);
+  const sentClass = `sentiment-${article.sentiment}`;
+  const sentLabel = article.sentiment === 'positive' ? '📈 긍정 전망' : article.sentiment === 'negative' ? '📉 부정 전망' : '➡️ 중립';
+  
+  document.getElementById('modal-content').innerHTML = `
+    <img class="modal-image" src="${imgUrl}" alt="" onerror="this.style.display='none'">
+    <div class="modal-body">
+      <div class="card-meta" style="margin-bottom:14px">
+        <span class="source-badge">${article.source}</span>
+        <span class="meta-dot">·</span>
+        <span class="time-badge">${article.published_at}</span>
+        <span class="category-tag">${CATEGORY_ICONS[article.category]||'📰'} ${article.category}</span>
+      </div>
+      <div class="modal-title">${article.title_ko}</div>
+      <div class="modal-summary">${article.summary_ko}</div>
+      <div class="card-footer">
+        <span class="sentiment-tag ${sentClass}">${sentLabel}</span>
+        <div class="keywords">
+          ${(article.keywords||[]).map(k=>`<span class="keyword">#${k}</span>`).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeModal(e) {
+  if(e.target === document.getElementById('modal-overlay')) {
+    document.getElementById('modal-overlay').classList.remove('open');
+  }
+}
+
+// Category filter
+document.querySelectorAll('.cat-btn').forEach(btn => {
+  btn.addEventListener('click', () => filterNews(btn.dataset.cat));
+});
+
+// Start
+loadNews();
+</script>
+
+</body>
+</html>
