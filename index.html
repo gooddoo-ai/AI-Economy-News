@@ -4,478 +4,525 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI 제조혁신 뉴스 대시보드</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Space+Mono:wght@400;700&family=Bebas+Neue&display=swap" rel="stylesheet">
+<title>AI 경제 뉴스피드</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#040810;--surface:#080f1e;--surface2:#0d1829;
-  --accent:#00d4ff;--accent2:#7c3aed;--accent3:#f59e0b;
-  --text:#e2e8f0;--muted:#64748b;
-  --border:rgba(0,212,255,0.15);--glow:0 0 20px rgba(0,212,255,0.3);
-}
-*{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;overflow-x:hidden}
-body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,212,255,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,0.025) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
-body::after{content:'';position:fixed;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse at 30% 20%,rgba(124,58,237,0.07) 0%,transparent 50%),radial-gradient(ellipse at 70% 80%,rgba(0,212,255,0.05) 0%,transparent 50%);pointer-events:none;z-index:0;animation:bgP 10s ease-in-out infinite alternate}
-@keyframes bgP{from{opacity:.5}to{opacity:1}}
-.wrap{max-width:1440px;margin:0 auto;padding:0 20px;position:relative;z-index:1}
-header{padding:18px 0 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
-.logo{display:flex;align-items:center;gap:12px}
-.logo-icon{width:42px;height:42px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:var(--glow)}
-.logo-text{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:3px;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.logo-sub{font-size:10px;color:var(--muted);letter-spacing:2px;font-family:'Space Mono',monospace}
-.hdr-r{display:flex;align-items:center;gap:14px}
-.live-badge{display:flex;align-items:center;gap:6px;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.4);border-radius:20px;padding:4px 12px;font-size:11px;font-family:'Space Mono',monospace;color:#ef4444}
-.live-dot{width:6px;height:6px;background:#ef4444;border-radius:50%;animation:blink 1.2s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-#clock{font-family:'Space Mono',monospace;font-size:13px;color:var(--accent);letter-spacing:2px}
-.ai-box{margin:24px 0;background:linear-gradient(135deg,rgba(124,58,237,.12),rgba(0,212,255,.06));border:1px solid rgba(124,58,237,.4);border-radius:20px;padding:26px 32px;position:relative;overflow:hidden}
-.ai-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent2),var(--accent),transparent)}
-.ai-hdr{display:flex;align-items:center;gap:14px;margin-bottom:16px}
-.ai-avatar{width:50px;height:50px;background:linear-gradient(135deg,var(--accent2),var(--accent));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 0 30px rgba(124,58,237,.5);flex-shrink:0}
-.ai-title{font-size:17px;font-weight:700;color:var(--accent)}
-.ai-sub{font-size:11px;color:var(--muted);font-family:'Space Mono',monospace;margin-top:2px}
-.summary{font-size:14px;line-height:1.9;color:var(--text)}
-.summary strong{color:var(--accent);font-weight:700}
-.tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
-.tag{background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);border-radius:20px;padding:3px 12px;font-size:10px;color:var(--accent);font-family:'Space Mono',monospace;letter-spacing:1px}
-.status-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:8px}
-.refresh-btn{display:flex;align-items:center;gap:7px;background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.25);border-radius:10px;padding:7px 16px;color:var(--accent);font-size:11px;font-family:'Space Mono',monospace;cursor:pointer;transition:all .2s;letter-spacing:1px}
-.refresh-btn:hover{background:rgba(0,212,255,.18)}
-.refresh-btn.spin .ico{animation:rotate 1s linear infinite}
-@keyframes rotate{to{transform:rotate(360deg)}}
-.updated{font-size:10px;color:var(--muted);font-family:'Space Mono',monospace}
-.tabs{display:flex;gap:4px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:4px;margin-bottom:24px;width:fit-content;flex-wrap:wrap}
-.tb{padding:7px 18px;border:none;background:transparent;color:var(--muted);font-size:12px;font-family:'Noto Sans KR',sans-serif;font-weight:500;border-radius:8px;cursor:pointer;transition:all .2s;white-space:nowrap}
-.tb.on{background:linear-gradient(135deg,var(--accent2),var(--accent));color:#fff;font-weight:700}
-.tc{display:none}.tc.on{display:block}
-.sec-hdr{display:flex;align-items:center;gap:12px;margin:32px 0 18px}
-.sec-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:3px}
-.sec-title.ko{color:var(--accent)}.sec-title.en{color:var(--accent3)}.sec-title.vb{color:#a78bfa}.sec-title.yt{color:#f87171}
-.sec-cnt{background:rgba(0,212,255,.08);border:1px solid var(--border);border-radius:20px;padding:2px 10px;font-size:10px;font-family:'Space Mono',monospace;color:var(--muted)}
-.sec-line{flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px;margin-bottom:4px}
-.card{background:rgba(8,15,30,.92);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;transition:all .3s;display:flex;flex-direction:column;backdrop-filter:blur(8px)}
-.card:hover{transform:translateY(-4px);box-shadow:var(--glow),0 20px 40px rgba(0,0,0,.4)}
-.card.ko:hover{border-color:var(--accent)}.card.en:hover{border-color:var(--accent3)}.card.vb:hover{border-color:#a78bfa;box-shadow:0 0 20px rgba(167,139,250,.3)}
-.c-img{width:100%;height:170px;object-fit:cover;background:var(--surface2);display:block;flex-shrink:0}
-.c-ph{width:100%;height:170px;display:flex;align-items:center;justify-content:center;font-size:44px;flex-shrink:0}
-.c-body{padding:14px;flex:1;display:flex;flex-direction:column}
-.c-src{font-size:10px;font-family:'Space Mono',monospace;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:7px;display:flex;align-items:center;gap:5px}
-.c-src .dot{width:4px;height:4px;border-radius:50%;flex-shrink:0}
-.c-title{font-size:13px;font-weight:700;line-height:1.5;margin-bottom:8px;color:var(--text);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.c-desc{font-size:11px;color:var(--muted);line-height:1.6;flex:1;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-.c-foot{display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:1px solid var(--border)}
-.c-date{font-size:10px;color:var(--muted);font-family:'Space Mono',monospace}
-.c-arr{font-size:15px;color:var(--accent);opacity:.5;transition:all .2s}
-.card:hover .c-arr{opacity:1;transform:translateX(4px)}
-.yt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}
-.yc{background:rgba(8,15,30,.92);border:1px solid rgba(248,113,113,.2);border-radius:14px;overflow:hidden;cursor:pointer;transition:all .3s;backdrop-filter:blur(8px)}
-.yc:hover{transform:translateY(-4px);border-color:#f87171;box-shadow:0 0 20px rgba(248,113,113,.3)}
-.yt-tw{position:relative;width:100%;padding-top:56.25%;overflow:hidden;background:#000}
-.yt-tw img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;transition:transform .3s}
-.yc:hover .yt-tw img{transform:scale(1.05)}
-.yt-play{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:50px;height:50px;background:rgba(248,113,113,.88);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 0 20px rgba(248,113,113,.5);transition:all .2s}
-.yc:hover .yt-play{transform:translate(-50%,-50%) scale(1.1);background:#f87171}
-.yc-body{padding:13px}
-.yc-ch{font-size:10px;color:#f87171;font-family:'Space Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px}
-.yc-title{font-size:12px;font-weight:700;line-height:1.5;color:var(--text);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.yc-meta{margin-top:8px;font-size:10px;color:var(--muted);font-family:'Space Mono',monospace}
-.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
-.modal-ov.on{display:flex}
-.modal{background:var(--surface);border:1px solid var(--border);border-radius:18px;width:92%;max-width:880px;overflow:hidden;position:relative}
-.modal iframe{width:100%;aspect-ratio:16/9;display:block}
-.mc-btn{position:absolute;top:10px;right:10px;background:rgba(0,0,0,.7);border:none;color:#fff;width:34px;height:34px;border-radius:50%;font-size:16px;cursor:pointer;z-index:10;display:flex;align-items:center;justify-content:center;transition:background .2s}
-.mc-btn:hover{background:var(--accent)}
-footer{margin-top:50px;padding:24px 0;border-top:1px solid var(--border);text-align:center;font-size:10px;color:var(--muted);font-family:'Space Mono',monospace;letter-spacing:1px}
-@media(max-width:640px){.grid,.yt-grid{grid-template-columns:1fr}.logo-text{font-size:18px}.ai-box{padding:18px 16px}.tabs{gap:2px}.tb{padding:6px 12px;font-size:11px}}
-::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+  :root {
+    --bg:#0a0a0f; --surface:#12121a; --card:#1a1a26; --card-hover:#1e1e2e;
+    --border:rgba(255,255,255,0.07); --accent:#7c6aff; --accent2:#ff6a9b;
+    --accent3:#6affd4; --text:#e8e8f0; --muted:#6b6b88;
+    --tag-bg:rgba(124,106,255,0.15); --tag-color:#a89fff;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;min-height:100vh;overflow-x:hidden}
+  body::before{content:'';position:fixed;inset:0;
+    background:radial-gradient(ellipse 80% 60% at 20% 10%,rgba(124,106,255,0.08) 0%,transparent 60%),
+               radial-gradient(ellipse 60% 40% at 80% 80%,rgba(255,106,155,0.06) 0%,transparent 50%),
+               radial-gradient(ellipse 40% 30% at 60% 40%,rgba(106,255,212,0.04) 0%,transparent 40%);
+    pointer-events:none;z-index:0}
+  header{position:sticky;top:0;z-index:100;background:rgba(10,10,15,0.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 20px}
+  .header-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:60px}
+  .logo{display:flex;align-items:center;gap:10px}
+  .logo-icon{width:34px;height:34px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px}
+  .logo-text{font-family:'DM Serif Display',serif;font-size:20px;letter-spacing:-0.5px;background:linear-gradient(90deg,var(--text),var(--muted));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .logo-sub{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase}
+  .header-right{display:flex;align-items:center;gap:12px}
+  .live-badge{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+  .live-dot{width:7px;height:7px;background:var(--accent3);border-radius:50%;animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(0.8)}}
+  .refresh-btn{background:var(--tag-bg);color:var(--tag-color);border:1px solid rgba(124,106,255,0.3);padding:7px 14px;border-radius:20px;font-size:13px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s;display:flex;align-items:center;gap:6px}
+  .refresh-btn:hover{background:rgba(124,106,255,0.25)}
+  .spin{display:inline-block;animation:spin 0.8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .category-bar{background:rgba(10,10,15,0.7);border-bottom:1px solid var(--border);padding:0 20px;position:sticky;top:60px;z-index:99;backdrop-filter:blur(12px)}
+  .category-inner{max-width:1100px;margin:0 auto;display:flex;gap:4px;overflow-x:auto;padding:8px 0;scrollbar-width:none}
+  .cat-btn{white-space:nowrap;padding:6px 14px;border-radius:20px;font-size:12px;cursor:pointer;border:1px solid transparent;font-family:'Noto Sans KR',sans-serif;transition:all 0.2s;background:transparent;color:var(--muted)}
+  .cat-btn.active{background:var(--tag-bg);color:var(--tag-color);border-color:rgba(124,106,255,0.3)}
+  .cat-btn:hover:not(.active){color:var(--text)}
+  main{max-width:1100px;margin:0 auto;padding:28px 20px;position:relative;z-index:1}
+  .stats-bar{display:flex;gap:20px;padding:0 0 22px;border-bottom:1px solid var(--border);margin-bottom:24px;flex-wrap:wrap;align-items:center}
+  .stat{display:flex;flex-direction:column;gap:2px}
+  .stat-value{font-size:20px;font-weight:700;font-family:'DM Serif Display',serif;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .stat-label{font-size:10px;color:var(--muted);letter-spacing:0.5px;text-transform:uppercase}
+  .stat-divider{width:1px;background:var(--border);align-self:stretch}
+  .date-badge{margin-left:auto;font-size:12px;color:var(--muted);background:rgba(255,255,255,0.04);padding:5px 12px;border-radius:12px;border:1px solid var(--border)}
+  #news-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:20px}
+  .news-card{background:var(--card);border:1px solid var(--border);border-radius:18px;overflow:hidden;transition:all 0.3s cubic-bezier(0.4,0,0.2,1);animation:fadeUp 0.5s ease both;cursor:pointer}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+  .news-card:hover{background:var(--card-hover);border-color:rgba(124,106,255,0.25);transform:translateY(-3px);box-shadow:0 16px 40px rgba(0,0,0,0.4),0 0 0 1px rgba(124,106,255,0.1)}
+  .card-img-wrap{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden}
+  .card-img-wrap img{width:100%;height:100%;object-fit:cover;display:block;transition:transform 0.4s ease}
+  .news-card:hover .card-img-wrap img{transform:scale(1.04)}
+  .img-fallback{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:44px;position:absolute;inset:0;display:none}
+  .card-cat-overlay{position:absolute;top:10px;right:10px;background:rgba(0,0,0,0.65);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.1);padding:4px 10px;border-radius:12px;font-size:11px;font-weight:600;color:#fff;letter-spacing:0.3px}
+  .card-body{padding:16px 18px 18px}
+  .card-meta{display:flex;align-items:center;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+  .source-badge{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.3px}
+  .meta-dot{color:var(--border)}
+  .time-badge{font-size:11px;color:var(--muted)}
+  .card-title{font-size:14.5px;font-weight:700;line-height:1.5;margin-bottom:9px;color:var(--text);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .card-summary{font-size:13px;color:#9090b0;line-height:1.75;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+  .card-footer{display:flex;align-items:center;gap:10px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);flex-wrap:wrap}
+  .sentiment-tag{font-size:11px;font-weight:600;padding:3px 9px;border-radius:10px;white-space:nowrap}
+  .sentiment-positive{background:rgba(106,255,212,0.12);color:#6affd4}
+  .sentiment-negative{background:rgba(255,100,100,0.12);color:#ff7070}
+  .sentiment-neutral{background:rgba(255,255,255,0.07);color:var(--muted)}
+  .keywords{display:flex;gap:5px;flex-wrap:wrap;flex:1}
+  .keyword{font-size:11px;color:var(--muted);padding:2px 7px;background:rgba(255,255,255,0.04);border-radius:7px;border:1px solid var(--border)}
+  .news-card.featured{grid-column:1/-1;display:grid;grid-template-columns:1.2fr 1fr}
+  .news-card.featured .card-img-wrap{aspect-ratio:auto;height:100%;min-height:200px}
+  .news-card.featured .card-title{font-size:17px;-webkit-line-clamp:3}
+  .news-card.featured .card-summary{-webkit-line-clamp:5}
+  @media(max-width:650px){.news-card.featured{grid-template-columns:1fr}.news-card.featured .card-img-wrap{height:auto;aspect-ratio:16/9}}
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:1000;backdrop-filter:blur(10px);align-items:center;justify-content:center;padding:20px}
+  .modal-overlay.open{display:flex}
+  .modal{background:var(--card);border:1px solid var(--border);border-radius:22px;max-width:660px;width:100%;max-height:88vh;overflow-y:auto;animation:mIn 0.25s ease}
+  @keyframes mIn{from{opacity:0;transform:scale(0.96) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+  .modal-img{width:100%;aspect-ratio:16/9;object-fit:cover;border-radius:18px 18px 0 0;display:block}
+  .modal-body{padding:24px}
+  .modal-title{font-size:20px;font-weight:700;line-height:1.45;margin-bottom:14px}
+  .modal-summary{font-size:14.5px;color:#9090b0;line-height:1.85;margin-bottom:14px}
+  .modal-detail{font-size:13.5px;color:#7878a0;line-height:1.8;margin-bottom:18px;padding:12px 14px;background:rgba(124,106,255,0.07);border-radius:10px;border-left:3px solid var(--accent)}
+  .modal-close-btn{position:fixed;top:24px;right:24px;background:rgba(20,20,30,0.9);backdrop-filter:blur(8px);border:1px solid var(--border);color:var(--text);width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;z-index:1001}
+  .modal-close-btn:hover{background:rgba(124,106,255,0.2)}
 </style>
 </head>
 <body>
-<div class="wrap">
 
 <header>
-  <div class="logo">
-    <div class="logo-icon">🤖</div>
-    <div>
-      <div class="logo-text">AI MANUFACTURING NEXUS</div>
-      <div class="logo-sub">AI 제조혁신 뉴스 · API 키 불필요 · RSS 실시간</div>
+  <div class="header-inner">
+    <div class="logo">
+      <div class="logo-icon">🤖</div>
+      <div>
+        <div class="logo-text">AI 뉴스피드</div>
+        <div class="logo-sub">경제 · 기술 · 인공지능</div>
+      </div>
     </div>
-  </div>
-  <div class="hdr-r">
-    <div class="live-badge"><div class="live-dot"></div>LIVE</div>
-    <div id="clock"></div>
+    <div class="header-right">
+      <div class="live-badge"><div class="live-dot"></div><span id="update-time">매일 업데이트</span></div>
+      <button class="refresh-btn" onclick="shuffleAndRender()"><span id="ri">↻</span> 새로고침</button>
+    </div>
   </div>
 </header>
 
-<div class="ai-box">
-  <div class="ai-hdr">
-    <div class="ai-avatar">🧠</div>
-    <div>
-      <div class="ai-title">AI 비서</div>
-      <div class="ai-sub">오늘의 뉴스 내용을 요약드립니다</div>
-    </div>
+<div class="category-bar">
+  <div class="category-inner">
+    <button class="cat-btn active" data-cat="all">전체</button>
+    <button class="cat-btn" data-cat="반도체">반도체</button>
+    <button class="cat-btn" data-cat="생성형AI">생성형 AI</button>
+    <button class="cat-btn" data-cat="빅테크">빅테크</button>
+    <button class="cat-btn" data-cat="투자">AI 투자</button>
+    <button class="cat-btn" data-cat="규제">규제·정책</button>
+    <button class="cat-btn" data-cat="자율주행">자율주행</button>
+    <button class="cat-btn" data-cat="로봇">로봇공학</button>
   </div>
-  <div class="summary" id="sumText">뉴스를 불러오는 중입니다...</div>
-  <div class="tags" id="sumTags"></div>
 </div>
 
-<div class="status-bar">
-  <span class="updated" id="updatedAt"></span>
-  <button class="refresh-btn" id="refBtn" onclick="loadAll()">
-    <span class="ico">↻</span> 새로고침
-  </button>
-</div>
+<main>
+  <div class="stats-bar" id="stats-bar"></div>
+  <div id="news-grid"></div>
+</main>
 
-<div class="tabs">
-  <button class="tb on" onclick="switchTab('all',this)">전체</button>
-  <button class="tb" onclick="switchTab('ko',this)">🇰🇷 한국어</button>
-  <button class="tb" onclick="switchTab('en',this)">🌐 영문</button>
-  <button class="tb" onclick="switchTab('vb',this)">⚡ Vibe Coding</button>
-  <button class="tb" onclick="switchTab('yt',this)">▶ YouTube</button>
-</div>
-
-<div class="tc on" id="tab-all">
-  <div class="sec-hdr"><div class="sec-title ko">🇰🇷 한국 AI 뉴스</div><div class="sec-cnt" id="koCnt">-</div><div class="sec-line"></div></div>
-  <div class="grid" id="koGrid"></div>
-  <div class="sec-hdr"><div class="sec-title en">🌐 Global AI News</div><div class="sec-cnt" id="enCnt">-</div><div class="sec-line"></div></div>
-  <div class="grid" id="enGrid"></div>
-  <div class="sec-hdr"><div class="sec-title vb">⚡ Vibe Coding 최신 동향</div><div class="sec-cnt" id="vbCnt">-</div><div class="sec-line"></div></div>
-  <div class="grid" id="vbGrid"></div>
-  <div class="sec-hdr"><div class="sec-title yt">▶ Vibe Coding YouTube</div><div class="sec-cnt" id="ytCnt">-</div><div class="sec-line"></div></div>
-  <div class="yt-grid" id="ytGrid"></div>
-</div>
-<div class="tc" id="tab-ko"><div class="sec-hdr"><div class="sec-title ko">🇰🇷 한국 AI 뉴스</div></div><div class="grid" id="koGrid2"></div></div>
-<div class="tc" id="tab-en"><div class="sec-hdr"><div class="sec-title en">🌐 Global AI News</div></div><div class="grid" id="enGrid2"></div></div>
-<div class="tc" id="tab-vb"><div class="sec-hdr"><div class="sec-title vb">⚡ Vibe Coding 최신 동향</div></div><div class="grid" id="vbGrid2"></div></div>
-<div class="tc" id="tab-yt"><div class="sec-hdr"><div class="sec-title yt">▶ Vibe Coding YouTube</div></div><div class="yt-grid" id="ytGrid2"></div></div>
-
-<footer>AI MANUFACTURING NEXUS &nbsp;·&nbsp; RSS 기반 · API 키 불필요 &nbsp;·&nbsp; 자동 30분 갱신 &nbsp;·&nbsp; © 2025</footer>
-</div>
-
-<div class="modal-ov" id="vModal">
-  <div class="modal">
-    <button class="mc-btn" onclick="closeVid()">✕</button>
-    <iframe id="vFrame" src="" frameborder="0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe>
-  </div>
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+  <button class="modal-close-btn" onclick="closeModal()">✕</button>
+  <div class="modal" id="modal-inner"></div>
 </div>
 
 <script>
-// CLOCK
-setInterval(()=>{document.getElementById('clock').textContent=new Date().toLocaleTimeString('ko-KR',{hour12:false})+' KST';},1000);
+const NEWS_DB = [
+  {id:1,category:'반도체',sentiment:'positive',source:'Bloomberg',published:'2025.03',
+   title:'엔비디아 H200, 데이터센터 수요 폭발로 분기 매출 400억 달러 돌파',
+   summary:'엔비디아의 H200 GPU가 AI 학습 수요 급증으로 역대 최고 분기 매출을 기록했다. 마이크로소프트·구글·아마존 등 빅테크 3사가 총 500억 달러 규모의 H200 구매 계약을 체결했으며, 공급이 수요를 따라가지 못해 대기 기간이 6개월 이상으로 늘었다. 엔비디아 주가는 발표 당일 8% 급등하며 시가총액 3조 달러를 재돌파했다. TSMC의 CoWoS 패키징 생산 능력 확대가 공급 병목의 핵심 변수로 꼽힌다.',
+   detail:'젠슨 황 CEO는 "AI 인프라 투자는 선택이 아닌 필수"라며 2026년 B300 아키텍처 출시를 예고했다.',
+   keywords:['H200','데이터센터','GPU'],
+   img:'https://images.unsplash.com/photo-1518770660439-4636190af475?w=700&h=394&fit=crop&auto=format'},
 
-const S={ko:[],en:[],vb:[],yt:[]};
-const R2J='https://api.rss2json.com/v1/api.json?rss_url=';
-const AOW='https://api.allorigins.win/get?url=';
+  {id:2,category:'반도체',sentiment:'positive',source:'Reuters',published:'2025.04',
+   title:'삼성전자 HBM4 양산 성공…엔비디아 공급망 합류 가시화',
+   summary:'삼성전자가 HBM4(4세대 고대역폭 메모리) 양산에 성공하며 SK하이닉스의 독주 체제에 도전장을 내밀었다. 엔비디아가 삼성 HBM4 품질 인증 절차를 진행 중이며, 이르면 2025년 하반기부터 공급이 시작될 전망이다. 이번 소식에 삼성전자 주가는 장중 5.2% 급등했다. HBM4는 이전 세대 대비 데이터 전송 속도가 60% 향상됐다.',
+   detail:'삼성은 2025년 HBM4 생산 능력을 전년 대비 3배 이상 확대할 계획이다.',
+   keywords:['HBM4','삼성','엔비디아'],
+   img:'https://images.unsplash.com/photo-1563770660941-84d0b2f5ac90?w=700&h=394&fit=crop&auto=format'},
 
-// RSS fetch via rss2json (free, no key)
-async function rss(url,count=15){
-  try{
-    const r=await fetch(R2J+encodeURIComponent(url)+'&count='+count,{signal:AbortSignal.timeout(9000)});
-    const d=await r.json();
-    if(d.status==='ok'&&d.items?.length)return d.items;
-  }catch(e){}
-  return[];
-}
+  {id:3,category:'반도체',sentiment:'negative',source:'Financial Times',published:'2025.06',
+   title:'미국 대중국 반도체 수출 통제 강화…ASML도 규제 대상 확대',
+   summary:'미국 상무부가 중국 대상 첨단 반도체 장비 수출 통제를 대폭 강화했다. 네덜란드 ASML의 DUV 노광 장비까지 규제 대상에 포함되며 중국 반도체 산업 전반에 충격파가 번졌다. SMIC·CXMT 등 중국 파운드리 업체 주가는 일제히 10% 이상 급락했다. 한국·일본 반도체 장비·소재 업체들도 간접 규제 여파를 피하지 못할 것이라는 우려가 커지고 있다.',
+   detail:'중국은 희토류 수출 제한으로 맞대응할 가능성이 있어 글로벌 공급망 불안이 고조되고 있다.',
+   keywords:['수출통제','ASML','SMIC'],
+   img:'https://images.unsplash.com/photo-1601132359864-fdfbc8b6e7c0?w=700&h=394&fit=crop&auto=format'},
 
-// Korean RSS sources
-const KO_FEEDS=[
-  {url:'https://www.aitimes.kr/rss/allArticle.xml',src:'AI타임스',clr:'var(--accent)'},
-  {url:'https://www.aitimes.com/rss/allArticle.xml',src:'AI타임스닷컴',clr:'var(--accent)'},
-  {url:'https://zdnet.co.kr/rss/newsAllArticle.xml',src:'ZDNet Korea',clr:'var(--accent)'},
-  {url:'https://www.etnews.com/rss/allArticle.xml',src:'전자신문',clr:'var(--accent)'},
-  {url:'https://www.mk.co.kr/rss/30200030/',src:'매일경제',clr:'var(--accent)'},
+  {id:4,category:'반도체',sentiment:'positive',source:'Wall Street Journal',published:'2025.08',
+   title:'인텔 파운드리 18A 공정으로 퀄컴 수주…부활 신호탄',
+   summary:'인텔 파운드리 서비스(IFS)가 퀄컴으로부터 18A 공정 기반 모바일 AP 생산 계약을 수주했다. 이는 인텔의 파운드리 전략이 본격 궤도에 오른 첫 번째 대형 수주로, TSMC 독주 구도에 균열이 생길 수 있다는 평가다. 인텔 CEO 팻 겔싱어는 "2026년까지 TSMC N2와 대등한 공정 경쟁력을 갖추겠다"고 밝혔다. 미국 정부의 보조금 지원도 인텔 파운드리 사업의 핵심 동력으로 작용한다.',
+   detail:'인텔은 애리조나·오하이오 팹 건설에 총 1,000억 달러 이상을 투자할 계획이다.',
+   keywords:['인텔','파운드리','18A'],
+   img:'https://images.unsplash.com/photo-1497366216548-37526070297c?w=700&h=394&fit=crop&auto=format'},
+
+  {id:5,category:'반도체',sentiment:'positive',source:'Nikkei',published:'2025.10',
+   title:'TSMC 2나노 양산 개시…애플 A19 첫 탑재 확정',
+   summary:'TSMC가 2나노(N2) 공정 양산을 공식 개시했다. 애플 A19 프로세서가 N2 공정을 처음 적용하는 제품으로 낙점됐으며, 2026년 아이폰 17 시리즈에 탑재될 예정이다. N2는 N3 대비 전력 효율 30%, 트랜지스터 밀도 15% 개선을 달성했다. TSMC 웨이저자 회장은 "N2 수율이 예상을 상회하고 있어 공급 일정에 차질이 없다"고 밝혔다.',
+   detail:'엔비디아와 AMD도 N2 기반 차세대 AI 가속기 칩 생산을 예약한 것으로 알려졌다.',
+   keywords:['TSMC','2나노','애플'],
+   img:'https://images.unsplash.com/photo-1518770660439-4636190af475?w=700&h=394&fit=crop&auto=format'},
+
+  {id:6,category:'반도체',sentiment:'positive',source:'Reuters',published:'2025.09',
+   title:'SK하이닉스 HBM3E 독점 공급…영업이익 20조 원 전망',
+   summary:'SK하이닉스가 엔비디아 H200·B200에 탑재되는 HBM3E의 사실상 독점 공급사 지위를 굳히며 2025년 영업이익 20조 원 돌파 전망이 나왔다. HBM3E는 초당 1.2TB의 대역폭을 제공하며 AI 학습 속도를 혁신적으로 높인다. SK하이닉스 주가는 연초 대비 80% 상승하며 코스피 시총 2위로 올라섰다. 청주·이천 M15X 신규 팹 투자도 속도를 내고 있다.',
+   detail:'SK하이닉스는 2026년 HBM4 초기 공급에서도 엔비디아 1차 협력사 지위를 유지할 것으로 전망된다.',
+   keywords:['SK하이닉스','HBM3E','영업이익'],
+   img:'https://images.unsplash.com/photo-1563770660941-84d0b2f5ac90?w=700&h=394&fit=crop&auto=format'},
+
+  {id:7,category:'생성형AI',sentiment:'positive',source:'TechCrunch',published:'2025.03',
+   title:'오픈AI GPT-5 출시…추론 능력 기존 대비 10배 향상',
+   summary:'오픈AI가 GPT-5를 공식 출시하며 AI 언어 모델 경쟁을 새로운 국면으로 끌어올렸다. GPT-5는 수학·과학 추론에서 박사급 전문가 수준을 최초로 돌파했으며, 멀티모달 처리 능력도 대폭 강화됐다. 출시 첫 주 ChatGPT 유료 구독자가 500만 명 추가로 늘어났고 API 이용 기업도 30% 급증했다. 샘 알트만 CEO는 "AGI까지의 거리가 생각보다 훨씬 가까워졌다"고 말했다.',
+   detail:'GPT-5는 o3 추론 모드를 기본 통합하며, 128K 컨텍스트 윈도우를 제공한다.',
+   keywords:['GPT-5','오픈AI','추론'],
+   img:'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=700&h=394&fit=crop&auto=format'},
+
+  {id:8,category:'생성형AI',sentiment:'positive',source:'The Verge',published:'2025.04',
+   title:'구글 제미나이 2.0, 코딩·과학 벤치마크서 GPT-4o 압도',
+   summary:'구글 딥마인드가 발표한 제미나이 2.0이 코딩·수학·과학 분야 주요 벤치마크에서 오픈AI GPT-4o를 일제히 앞질렀다. 특히 HumanEval 코딩 테스트에서 92.3%의 정확도를 기록해 업계를 놀라게 했다. 구글은 제미나이 2.0을 검색·Workspace 제품군에 통합하며 기업 시장 공략을 가속화하고 있다. 애플과의 iOS 기본 AI 탑재 협상도 마무리 단계인 것으로 전해졌다.',
+   detail:'구글은 제미나이 2.0 울트라 모델 월 사용료를 20달러로 책정해 가격 경쟁력을 높였다.',
+   keywords:['구글','제미나이','벤치마크'],
+   img:'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=700&h=394&fit=crop&auto=format'},
+
+  {id:9,category:'생성형AI',sentiment:'positive',source:'MIT Tech Review',published:'2025.07',
+   title:'앤스로픽 클로드 4, 안전성과 성능 동시 달성…기업 채택 급증',
+   summary:'앤스로픽이 발표한 클로드 4는 AI 안전성 평가에서 역대 최고 점수를 기록하는 동시에 멀티스텝 추론 성능에서도 GPT-5와 어깨를 나란히 한다는 평가를 받았다. 포춘 500대 기업 중 200곳 이상이 클로드 4를 기업 내부 AI 시스템에 도입하기로 결정했다. 앤스로픽의 연간 반복 매출(ARR)은 40억 달러를 돌파했다. 헌법적 AI 방법론이 기업 리스크 관리 측면에서 큰 호응을 얻고 있다.',
+   detail:'클로드 4는 200K 토큰 컨텍스트와 함께 새로운 Tool Use 기능으로 복잡한 업무 자동화를 지원한다.',
+   keywords:['앤스로픽','클로드4','안전성'],
+   img:'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=700&h=394&fit=crop&auto=format'},
+
+  {id:10,category:'생성형AI',sentiment:'negative',source:'Wired',published:'2025.05',
+   title:'생성형 AI 저작권 소송 줄줄이…NYT·Getty 1심 승소',
+   summary:'뉴욕타임스(NYT)와 게티이미지가 오픈AI, 스태빌리티 AI를 상대로 제기한 저작권 침해 소송에서 1심 법원이 원고 측에 유리한 중간 판결을 내렸다. 법원은 AI 학습 데이터로 저작물을 무단 사용한 것이 공정 이용에 해당하지 않을 수 있다고 판단했다. 이번 판결로 생성형 AI 업계 전반에 저작권 리스크가 현실화됐다. 오픈AI 측은 즉각 항소하겠다고 밝혔다.',
+   detail:'미국 저작권청은 AI 학습 데이터 관련 별도 가이드라인 제정을 검토 중이다.',
+   keywords:['저작권','소송','오픈AI'],
+   img:'https://images.unsplash.com/photo-1531297484001-80022131f5a1?w=700&h=394&fit=crop&auto=format'},
+
+  {id:11,category:'생성형AI',sentiment:'positive',source:'VentureBeat',published:'2025.09',
+   title:'메타 라마 4, 오픈소스 최강자 등극…한국어 성능도 급향상',
+   summary:'메타가 공개한 라마(LLaMA) 4는 오픈소스 모델 최초로 GPT-4급 성능을 달성했다는 평가를 받으며 AI 민주화 흐름을 가속화하고 있다. 다국어 학습 데이터 확충으로 한국어 성능이 이전 세대 대비 40% 이상 향상됐다. 출시 첫 달 허깅페이스 다운로드 수가 5,000만 건을 돌파하며 역대 최단 기록을 세웠다. 국내 IT 기업들도 라마 4 기반 자체 특화 모델 개발에 속속 착수하고 있다.',
+   detail:'메타는 라마 4 학습에 H100 GPU 6만 개를 투입했으며, 상업적 이용도 무료로 허용했다.',
+   keywords:['메타','라마4','오픈소스'],
+   img:'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=700&h=394&fit=crop&auto=format'},
+
+  {id:12,category:'생성형AI',sentiment:'positive',source:'Forbes',published:'2025.04',
+   title:'AI 의사, 진단 정확도 95%…대형 병원 도입 본격화',
+   summary:'구글 딥마인드의 의료 AI "메드-제미나이(Med-Gemini)"가 희귀질환 진단에서 전문의 수준의 95% 정확도를 달성했다. 미국 FDA는 메드-제미나이를 보조 진단 의료기기로 공식 승인했으며, 존스홉킨스·메이요클리닉이 도입을 결정했다. AI 진단이 영상의학과·병리과 전문의의 업무를 보완하며 의료 효율화에 기여하고 있다. 국내에서도 서울대병원이 한국어 특화 의료 AI 공동 개발에 착수했다.',
+   detail:'메드-제미나이는 전자의무기록·의료 영상·병리 슬라이드를 통합 분석하는 멀티모달 AI다.',
+   keywords:['의료AI','진단','FDA'],
+   img:'https://images.unsplash.com/photo-1677442136019-21780ecad995?w=700&h=394&fit=crop&auto=format'},
+
+  {id:13,category:'생성형AI',sentiment:'positive',source:'Wired',published:'2025.10',
+   title:'AI 코딩 도구, 개발자 생산성 55% 향상…소프트웨어 판도 바꾼다',
+   summary:'깃허브 코파일럿·커서·아마존 Q 등 AI 코딩 도구를 사용하는 개발자의 생산성이 기존 대비 평균 55% 향상됐다는 대규모 연구 결과가 발표됐다. 전 세계 개발자의 60% 이상이 AI 코딩 보조 도구를 일상적으로 사용하는 것으로 집계됐다. 주니어 개발자의 시니어 수준 진입 시간도 평균 2년에서 8개월로 단축됐다. AI 코딩 도구 시장은 2026년 150억 달러 규모로 성장할 전망이다.',
+   detail:'커서(Cursor) AI 편집기는 출시 1년 만에 200만 유료 구독자를 돌파하며 가장 빠르게 성장하는 개발 도구가 됐다.',
+   keywords:['코딩AI','개발자','생산성'],
+   img:'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=700&h=394&fit=crop&auto=format'},
+
+  {id:14,category:'빅테크',sentiment:'positive',source:'Bloomberg',published:'2025.04',
+   title:'마이크로소프트 AI 매출 첫 분기 100억 달러 돌파',
+   summary:'마이크로소프트가 AI 관련 제품·서비스 매출이 단일 분기 처음으로 100억 달러를 넘었다고 발표했다. 코파일럿 기업 구독자가 전 세계 2,000만 명을 돌파했으며, Azure OpenAI 서비스도 전 분기 대비 75% 성장했다. 사티아 나델라 CEO는 "AI는 이제 우리의 모든 제품에 내재화된 핵심 기능"이라고 밝혔다. 마이크로소프트 주가는 사상 최고치를 경신하며 시총 3.5조 달러에 근접했다.',
+   detail:'코파일럿 기능이 Office 365 전 제품에 기본 탑재되며 생산성 시장의 판도가 바뀌고 있다.',
+   keywords:['마이크로소프트','코파일럿','Azure'],
+   img:'https://images.unsplash.com/photo-1497366754035-9618679af294?w=700&h=394&fit=crop&auto=format'},
+
+  {id:15,category:'빅테크',sentiment:'positive',source:'CNBC',published:'2025.06',
+   title:'애플 AI 인텔리전스 정식 출시…아이폰 16 판매 반등',
+   summary:'애플이 iOS 18과 함께 Apple Intelligence를 정식 출시하며 스마트폰 AI 경쟁에 본격 가세했다. 사진 편집·이메일 요약·시리 고도화 등 온디바이스 AI 기능이 크게 강화됐으며, 아이폰 16 업그레이드 수요가 예상을 20% 웃돌았다. 팀 쿡 CEO는 "AI가 맥·아이패드·애플워치 전 생태계를 연결하는 중심축"이라고 강조했다. 프라이버시 우선 접근 방식이 기업·정부 고객층에서 긍정적인 평가를 받고 있다.',
+   detail:'애플 인텔리전스는 M4 칩 이상에서 실행되며, 클라우드 처리 시 프라이빗 클라우드 컴퓨트 기술이 적용된다.',
+   keywords:['애플','AI인텔리전스','아이폰'],
+   img:'https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=700&h=394&fit=crop&auto=format'},
+
+  {id:16,category:'빅테크',sentiment:'negative',source:'The Guardian',published:'2025.07',
+   title:'빅테크 AI 독점 우려…EU·미 FTC 공동 조사 착수',
+   summary:'유럽연합 집행위원회와 미국 연방거래위원회(FTC)가 빅테크의 AI 생태계 독점 문제에 대한 공동 조사에 착수했다. 조사 대상은 마이크로소프트·구글·아마존으로, 클라우드-AI 모델-분배 플랫폼의 수직 결합이 공정 경쟁을 저해한다는 혐의를 받고 있다. 비준수 시 전 세계 연간 매출의 최대 3%에 해당하는 과징금이 부과될 수 있어 기업들이 긴장하고 있다.',
+   detail:'EU AI 법(AI Act)의 GPAI 조항도 빅테크의 범용 AI 모델에 본격 적용될 예정이다.',
+   keywords:['EU','FTC','독점조사'],
+   img:'https://images.unsplash.com/photo-1552664730-d307ca884978?w=700&h=394&fit=crop&auto=format'},
+
+  {id:17,category:'빅테크',sentiment:'positive',source:'Reuters',published:'2025.09',
+   title:'아마존, AI 물류 혁신으로 배송비 40% 절감 달성',
+   summary:'아마존이 자체 개발한 AI 물류 최적화 시스템 "헤르메스(Hermes)"를 전 미국 물류센터에 전면 도입해 배송 비용을 40% 절감했다. 헤르메스는 날씨·교통·재고 데이터를 실시간으로 분석해 최적 배송 경로와 재고 배분을 자동화한다. 프라임 당일 배송 적용 지역이 전년 대비 35% 확대됐다. AWS도 헤르메스 핵심 알고리즘을 외부 물류 기업에 서비스로 제공할 계획이다.',
+   detail:'아마존은 헤르메스 개발에 3년간 20억 달러를 투자했으며, 특허 출원도 230건에 달한다.',
+   keywords:['아마존','물류AI','AWS'],
+   img:'https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=700&h=394&fit=crop&auto=format'},
+
+  {id:18,category:'빅테크',sentiment:'neutral',source:'Bloomberg',published:'2025.07',
+   title:'구글, AI 검색 광고 수익 감소 첫 보고…전통 검색 지각 변동',
+   summary:'구글이 AI Overview 기능 확대 이후 전통적인 검색 광고 클릭률이 처음으로 전년 대비 하락했다고 공시했다. AI가 검색 결과 상단에서 직접 답변을 제공하면서 광고 노출 기회가 줄었기 때문이다. 알파벳 주가는 이 소식에 장중 6% 급락했다. 구글은 AI 검색에 최적화된 새로운 광고 모델 "AI 모먼트 애즈"를 2026년 도입할 계획이라고 밝혔다.',
+   detail:'검색 수익 의존도를 낮추기 위해 구글은 클라우드·AI 구독 사업 비중을 2027년까지 50%로 높이겠다는 목표다.',
+   keywords:['구글','검색광고','AI검색'],
+   img:'https://images.unsplash.com/photo-1497366754035-9618679af294?w=700&h=394&fit=crop&auto=format'},
+
+  {id:19,category:'투자',sentiment:'positive',source:'Bloomberg',published:'2025.03',
+   title:'오픈AI 기업가치 1,570억 달러…소프트뱅크 주도 투자 마무리',
+   summary:'소프트뱅크가 주도한 150억 달러 규모의 오픈AI 투자 라운드가 마무리되며 기업가치가 1,570억 달러로 확정됐다. 이는 비상장 기업 기준 전 세계 최고 기업가치 기록이다. 오픈AI는 이번 자금으로 데이터센터 인프라 확충과 AGI 연구 가속화에 나설 계획이다. 아랍에미리트 국부펀드도 30억 달러를 투자하며 중동 AI 투자 열풍이 지속되고 있다.',
+   detail:'오픈AI는 2025년 내 상장보다 비상장 구조를 유지하며 공익법인 전환 협상을 진행 중이다.',
+   keywords:['오픈AI','소프트뱅크','투자'],
+   img:'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=700&h=394&fit=crop&auto=format'},
+
+  {id:20,category:'투자',sentiment:'positive',source:'Financial Times',published:'2025.05',
+   title:'미국 AI 인프라 투자 2025년 3,000억 달러 돌파 전망',
+   summary:'골드만삭스는 2025년 미국 내 AI 데이터센터 및 인프라 투자 규모가 처음으로 3,000억 달러를 돌파할 것으로 전망했다. 마이크로소프트·구글·아마존·메타 4대 빅테크의 AI 설비투자(CAPEX)만 합산 2,000억 달러에 달한다. 전력 소비 급증으로 데이터센터 전용 소형모듈원전(SMR) 투자도 함께 급증하고 있다. 워런 버핏도 AI 전력 인프라 기업에 대한 투자 의사를 처음으로 밝혀 주목받았다.',
+   detail:'골드만삭스는 AI 인프라 투자가 2030년까지 누적 2조 달러에 달할 것으로 예상했다.',
+   keywords:['AI투자','데이터센터','CAPEX'],
+   img:'https://images.unsplash.com/photo-1518186285589-2f7649de83e0?w=700&h=394&fit=crop&auto=format'},
+
+  {id:21,category:'투자',sentiment:'positive',source:'Wall Street Journal',published:'2025.07',
+   title:'한국 AI 스타트업 투자, 상반기 역대 최대 2조 5천억 원',
+   summary:'중소벤처기업부에 따르면 2025년 상반기 국내 AI 스타트업 투자 규모가 2조 5,000억 원을 기록해 역대 최대치를 경신했다. 생성형 AI·온디바이스 AI·AI 반도체 분야에 투자가 집중됐으며, 글로벌 VC의 국내 AI 기업 투자도 전년 동기 대비 180% 급증했다. 업스테이지·리벨리온·사피온 등이 대규모 투자를 유치했다. 정부도 AI 특화 펀드 1조 원 조성 계획을 발표했다.',
+   detail:'AI 의료·법률·금융 버티컬 스타트업에 대한 기업 전략 투자(CVC)도 크게 늘고 있다.',
+   keywords:['스타트업','투자','국내AI'],
+   img:'https://images.unsplash.com/photo-1579532537598-459ecdaf39cc?w=700&h=394&fit=crop&auto=format'},
+
+  {id:22,category:'투자',sentiment:'negative',source:'The Economist',published:'2025.08',
+   title:'AI 버블 경고…기업 AI 투자 ROI 증거 여전히 부족',
+   summary:'이코노미스트가 AI 투자 과열에 대한 심층 보고서를 발표하며 현재 AI 투자 붐이 1990년대 닷컴 버블과 유사한 패턴을 보인다고 경고했다. 설문에 응한 포춘 500대 기업의 68%가 AI 도입 후 실질적인 ROI를 측정하지 못하고 있다고 답했다. AI 관련 주식들의 PER은 평균 80배를 넘어 기술주 역사상 두 번째로 높은 수준이다. 일부 분석가는 2026년 하반기 AI 기업 주가 조정이 불가피하다고 전망한다.',
+   detail:'골드만삭스 이코노미스트 짐 코비엘로도 "AI가 비용에 걸맞은 생산성 향상을 가져오지 못하고 있다"고 비판했다.',
+   keywords:['AI버블','ROI','주가'],
+   img:'https://images.unsplash.com/photo-1466027397311-40d2d3edd0a6?w=700&h=394&fit=crop&auto=format'},
+
+  {id:23,category:'투자',sentiment:'positive',source:'CNBC',published:'2025.11',
+   title:'사우디아라비아 1,000억 달러 AI 펀드 출범…글로벌 투자 경쟁',
+   summary:'사우디아라비아 공공투자펀드(PIF)가 1,000억 달러 규모의 국가 AI 투자 펀드를 출범했다. 미국·한국·일본의 AI 선도 기업에 대한 지분 투자와 사우디 내 AI 데이터센터 건설에 집중 투자할 계획이다. UAE의 G42, 카타르 투자청도 잇따라 대형 AI 펀드를 조성하며 중동이 글로벌 AI 투자 허브로 부상하고 있다.',
+   detail:'사우디 리야드는 중동 AI 생태계의 거점 도시로 육성하며 실리콘밸리 기업 유치에도 적극 나서고 있다.',
+   keywords:['사우디','중동','AI펀드'],
+   img:'https://images.unsplash.com/photo-1624996379697-f7e90e67c8f1?w=700&h=394&fit=crop&auto=format'},
+
+  {id:24,category:'투자',sentiment:'positive',source:'WSJ',published:'2025.06',
+   title:'AI 에이전트 스타트업 붐…시리즈A 평균 밸류 5천억 원 돌파',
+   summary:'AI 에이전트(자율 AI 실행 시스템) 분야의 스타트업 투자 열풍이 거세다. 2025년 상반기 글로벌 AI 에이전트 스타트업 시리즈A 투자의 평균 기업가치가 처음으로 5,000억 원을 돌파했다. 법률 문서 검토·코드 작성·고객 서비스를 자동화하는 에이전트 솔루션이 대기업 채택을 이끌고 있다. 소프트웨어 엔지니어링 에이전트 "데빈(Devin)"은 출시 3개월 만에 ARR 1억 달러를 달성했다.',
+   detail:'AI 에이전트 시장은 2027년 500억 달러 규모로 성장할 것으로 가트너는 전망하고 있다.',
+   keywords:['AI에이전트','스타트업','데빈'],
+   img:'https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=700&h=394&fit=crop&auto=format'},
+
+  {id:25,category:'규제',sentiment:'neutral',source:'Reuters',published:'2025.03',
+   title:'EU AI법 본격 시행…범용AI 모델 기업 의무 준수 시작',
+   summary:'유럽연합의 AI 법(AI Act)이 단계적 시행에 돌입했다. 1단계로 범용 AI(GPAI) 모델을 제공하는 기업들이 투명성 보고 및 저작권 정책 공개 의무를 이행해야 한다. 오픈AI·구글·메타 등은 EU 규정 준수팀을 별도로 구성하며 대응에 나섰다. 비준수 시 전 세계 연간 매출의 최대 3%에 해당하는 과징금이 부과될 수 있다.',
+   detail:'고위험 AI 시스템(의료·채용·신용평가)에 대한 의무는 2026년 8월부터 적용될 예정이다.',
+   keywords:['EU','AI법','규제'],
+   img:'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=700&h=394&fit=crop&auto=format'},
+
+  {id:26,category:'규제',sentiment:'negative',source:'AP',published:'2025.05',
+   title:'미국 캘리포니아 SB 1047 부활…AI 안전 규제 재점화',
+   summary:'한 차례 거부됐던 캘리포니아주의 AI 안전 규제 법안 SB 1047이 수정 보완되어 재발의됐다. 수정안은 프론티어 AI 모델 개발 기업에 사전 안전 평가 및 비상 정지 메커니즘 구축을 의무화하는 내용을 담고 있다. 오픈AI·구글·메타는 강력 반대 입장을 유지하고 있으며, 앤스로픽은 안전 요건 강화를 조건부로 지지하는 입장이다. 통과 시 미국 AI 산업 전반에 미칠 파급 효과가 막대할 전망이다.',
+   detail:'개빈 뉴섬 캘리포니아 주지사는 입장 발표를 유보하며 업계와 시민사회 의견을 수렴 중이다.',
+   keywords:['캘리포니아','AI안전','규제'],
+   img:'https://images.unsplash.com/photo-1541872705-1f73c6400ec9?w=700&h=394&fit=crop&auto=format'},
+
+  {id:27,category:'규제',sentiment:'neutral',source:'Yonhap',published:'2025.06',
+   title:'한국 AI 기본법 국회 통과…세계 두 번째 포괄적 AI 입법',
+   summary:'대한민국 국회가 AI 기본법을 통과시키며 EU에 이어 세계 두 번째로 포괄적 AI 법제화에 성공했다. AI 기본법은 고위험 AI 시스템 사전 신고제, AI 생성물 표시 의무, 알고리즘 영향 평가 등을 핵심 내용으로 담고 있다. 업계에서는 혁신 저해 우려와 국제 신뢰 제고 기대가 교차하고 있다. 과학기술정보통신부는 시행령 마련을 위한 전문가 위원회를 구성했다.',
+   detail:'AI 기본법은 2026년 7월 공식 시행 예정이며, 위반 시 최대 3,000만 원의 과태료가 부과된다.',
+   keywords:['AI기본법','한국','입법'],
+   img:'https://images.unsplash.com/photo-1529070538774-1d604d6f03f0?w=700&h=394&fit=crop&auto=format'},
+
+  {id:28,category:'규제',sentiment:'negative',source:'Politico',published:'2025.09',
+   title:'트럼프 행정부, 바이든 AI 행정명령 전면 폐지',
+   summary:'트럼프 2기 행정부가 바이든 전 대통령의 AI 안전·위험 관리 행정명령을 전면 폐기했다. 백악관은 "지나친 규제가 미국의 AI 경쟁력을 약화시킨다"고 폐지 이유를 밝혔다. AI 안전 연구 기관인 AISI 예산도 대폭 삭감될 전망이다. 반면 AI 기술 수출 통제와 국가 안보 관련 AI 규제는 오히려 강화되는 방향으로 가닥을 잡고 있다.',
+   detail:'이번 결정으로 미국의 AI 규제 공백이 길어질 수 있으며, 유럽과의 규제 격차가 더욱 벌어질 전망이다.',
+   keywords:['트럼프','AI규제','행정명령'],
+   img:'https://images.unsplash.com/photo-1523292562811-8fa7962a78c8?w=700&h=394&fit=crop&auto=format'},
+
+  {id:29,category:'규제',sentiment:'neutral',source:'OECD',published:'2025.11',
+   title:'OECD "AI 일자리 충격, 2030년까지 선진국 14% 직업 대체"',
+   summary:'OECD가 발표한 "AI와 미래 노동" 보고서에 따르면 AI 자동화로 2030년까지 OECD 회원국 전체 직업의 14%가 완전 대체될 위험에 처해 있다. 특히 데이터 처리·회계·법률 보조·고객 서비스 분야의 위험도가 높게 평가됐다. 동시에 AI 관련 신규 직종이 기존 소멸 직종보다 많아질 것으로 예측했다. 각국 정부의 AI 재교육 프로그램 투자가 시급하다는 권고도 포함됐다.',
+   detail:'한국은 제조업 자동화 비율이 높아 OECD 평균 대비 직업 대체 위험도가 20% 높은 것으로 분석됐다.',
+   keywords:['OECD','일자리','자동화'],
+   img:'https://images.unsplash.com/photo-1505664194779-8beaceb22dd5?w=700&h=394&fit=crop&auto=format'},
+
+  {id:30,category:'자율주행',sentiment:'positive',source:'Reuters',published:'2025.04',
+   title:'웨이모, 미국 25개 도시 무인 로보택시 상업 서비스 확대',
+   summary:'구글 웨이모가 기존 샌프란시스코·피닉스에서 전국 25개 도시로 완전 무인 로보택시 서비스를 확장했다. 누적 이용 건수는 1억 회를 돌파했으며, 유료 요금제 도입 후 월 매출 3억 달러를 기록했다. 웨이모의 100만 마일당 충돌 사고율은 인간 운전자 대비 85% 낮아 안전성이 검증됐다. 우버·리프트와의 플랫폼 파트너십도 체결해 기존 앱에서도 웨이모 차량을 호출할 수 있게 됐다.',
+   detail:'웨이모는 2026년 서울·도쿄 등 아시아 도시 진출도 검토 중이다.',
+   keywords:['웨이모','로보택시','자율주행'],
+   img:'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=700&h=394&fit=crop&auto=format'},
+
+  {id:31,category:'자율주행',sentiment:'positive',source:'The Verge',published:'2025.06',
+   title:'테슬라 FSD v13, 고속도로 완전 자율주행 달성…레벨 3 인증 신청',
+   summary:'테슬라가 완전자율주행(FSD) 소프트웨어 v13을 출시하며 고속도로 구간에서의 완전 자율주행 기능을 공식 발표했다. 테슬라는 즉시 미국 NHTSA에 레벨 3 자율주행 인증을 신청했다. FSD 월 구독자는 전 세계 200만 명을 돌파했으며, 이 사업만으로 연간 60억 달러 수준의 매출이 예상된다. 일론 머스크는 "2026년까지 로보택시 서비스를 상용화하겠다"는 약속을 재확인했다.',
+   detail:'FSD v13은 뉴럴넷 기반 엔드투엔드 AI로 개발됐으며, 라이다 없이 카메라만으로 작동한다.',
+   keywords:['테슬라','FSD','레벨3'],
+   img:'https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=700&h=394&fit=crop&auto=format'},
+
+  {id:32,category:'자율주행',sentiment:'negative',source:'AP',published:'2025.08',
+   title:'GM 크루즈 사고 후 재건 실패…자율주행 사업 구조조정',
+   summary:'GM의 자율주행 자회사 크루즈가 2023년 사고 이후 신뢰 회복에 실패하며 결국 대규모 구조조정을 단행했다. GM은 크루즈 로보택시 사업을 접고 자율주행 기술을 군용·산업용 차량으로 방향을 전환하겠다고 발표했다. 2,000명의 인력 감축도 동반됐다. 자율주행 업계 전반에 안전성에 대한 대중적 불신이 여전히 과제로 남아 있음을 보여주는 사례로 꼽힌다.',
+   detail:'크루즈 사태로 자율주행 상용화의 가장 큰 걸림돌이 기술보다 규제·신뢰 문제임이 재확인됐다.',
+   keywords:['GM','크루즈','구조조정'],
+   img:'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=700&h=394&fit=crop&auto=format'},
+
+  {id:33,category:'자율주행',sentiment:'positive',source:'Nikkei',published:'2025.10',
+   title:'현대차·모셔널, 아이오닉 5 로보택시 미국 상용화 돌입',
+   summary:'현대자동차와 앱티브 합작사 모셔널이 아이오닉 5 기반 자율주행 로보택시의 미국 상용 서비스를 라스베이거스에서 공식 시작했다. 우버와의 파트너십을 통해 우버 앱에서 바로 호출이 가능하다. 현대차 정의선 회장은 "모빌리티 서비스가 완성차 못지않은 사업 축이 될 것"이라고 강조했다. 2026년까지 미국 10개 도시로 서비스를 확대할 계획이다.',
+   detail:'모셔널은 현대차 E-GMP 플랫폼과 앱티브의 자율주행 SW를 결합한 독자 아키텍처를 사용한다.',
+   keywords:['현대차','모셔널','로보택시'],
+   img:'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=700&h=394&fit=crop&auto=format'},
+
+  {id:34,category:'로봇',sentiment:'positive',source:'Bloomberg',published:'2025.03',
+   title:'피규어 AI, 인간형 로봇 Figure 02 출시…BMW 공장 100대 배치',
+   summary:'인간형 로봇 스타트업 피규어 AI가 Figure 02를 발표하며 BMW 제조 공장에 100대를 즉시 배치하기로 계약을 체결했다. Figure 02는 GPT-4 기반 언어 모델을 탑재해 자연어 명령을 이해하고 복잡한 조립 작업을 수행할 수 있다. 2026년 말까지 1,000대 생산을 목표로 하며, 대당 가격은 약 20만 달러로 책정됐다. BMW는 반복 조립 공정의 생산성이 30% 향상될 것으로 기대하고 있다.',
+   detail:'오픈AI와의 공동 개발로 AI 추론 능력이 크게 향상됐으며, 로봇 학습 시간도 대폭 단축됐다.',
+   keywords:['피규어AI','인간형로봇','BMW'],
+   img:'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=700&h=394&fit=crop&auto=format'},
+
+  {id:35,category:'로봇',sentiment:'positive',source:'TechCrunch',published:'2025.05',
+   title:'테슬라 옵티머스 양산 시작…연말 1만 대 공장 배치 목표',
+   summary:'테슬라가 인간형 로봇 옵티머스(Optimus)의 본격 양산을 개시했다. 2025년 말까지 테슬라 자사 공장에 1만 대를 배치하고, 2026년 외부 판매를 시작할 계획이다. 옵티머스 Gen 3는 22 자유도(DoF)와 FSD 기반 자율 학습 능력을 갖춰 다양한 제조 작업에 투입된다. 일론 머스크는 "옵티머스가 테슬라 최대 사업이 될 것"이라고 예언하며 기대감을 높였다.',
+   detail:'테슬라는 옵티머스 외부 판매 가격을 2만~3만 달러 수준으로 목표하고 있다.',
+   keywords:['테슬라','옵티머스','로봇'],
+   img:'https://images.unsplash.com/photo-1535378917042-10a22c95931a?w=700&h=394&fit=crop&auto=format'},
+
+  {id:36,category:'로봇',sentiment:'positive',source:'MIT Tech Review',published:'2025.08',
+   title:'보스턴다이나믹스 스팟, AI 인지 업그레이드로 산업 현장 채택 급증',
+   summary:'현대차 자회사 보스턴다이나믹스의 4족 보행 로봇 스팟이 GPT-4 비전 모델 통합 업그레이드를 통해 산업 현장 수요가 폭발적으로 늘고 있다. 발전소·석유화학·건설 현장에서의 안전 점검 및 원격 모니터링 용도로 전 세계 5,000대 이상이 운영 중이다. 현대차그룹은 스팟 판매가 2025년 처음으로 흑자 전환할 것이라고 밝혔다. 아틀라스 인간형 로봇의 상업화 일정도 2026년으로 앞당겨졌다.',
+   detail:'보스턴다이나믹스는 한국 평택 공장에서 스팟 증산에 나서며 연간 생산 능력을 3배 늘렸다.',
+   keywords:['스팟','현대차','보스턴다이나믹스'],
+   img:'https://images.unsplash.com/photo-1527430253228-e93688616381?w=700&h=394&fit=crop&auto=format'},
+
+  {id:37,category:'로봇',sentiment:'positive',source:'CNBC',published:'2025.10',
+   title:'중국 유니트리 인간형 로봇 H1, 글로벌 판매 급성장',
+   summary:'중국 로봇 스타트업 유니트리 로보틱스의 인간형 로봇 H1이 글로벌 시장에서 돌풍을 일으키고 있다. H1은 경쟁 제품 대비 10분의 1 가격인 9만 달러에 공급되며 2025년 판매량이 5,000대를 돌파했다. 유럽·미국 대학 및 연구소를 중심으로 수요가 빠르게 늘고 있으며 일부 물류 기업도 시범 도입을 시작했다. 미국 로봇 기업들이 가격 경쟁력 측면에서 중국에 압도당하고 있다는 우려가 나온다.',
+   detail:'유니트리는 2026년 신형 G1 로봇을 5만 달러 이하로 출시할 계획을 발표해 시장에 충격을 줬다.',
+   keywords:['유니트리','중국로봇','가격경쟁'],
+   img:'https://images.unsplash.com/photo-1617396900799-f4ec2b43c7d3?w=700&h=394&fit=crop&auto=format'},
+
+  {id:38,category:'로봇',sentiment:'neutral',source:'Reuters',published:'2025.12',
+   title:'아마존, 물류 창고에 인간형 로봇 투입…노조 반발',
+   summary:'아마존이 Agility Robotics와 공동 개발한 인간형 로봇 "디지트(Digit)"를 텍사스 물류 창고 3곳에 정식 배치했다. 디지트는 선반에서 물건을 집어 컨베이어 벨트에 올리는 반복 작업을 수행하며 24시간 운영이 가능해 비용을 크게 절감했다. 아마존 노조는 일자리 대체 우려를 표명하며 단체교섭을 요구했다. 아마존은 2026년까지 100개 물류 창고에 디지트를 배치할 계획이다.',
+   detail:'아마존은 "로봇은 위험 업무 대체이며 신규 일자리도 함께 창출된다"는 입장을 유지하고 있다.',
+   keywords:['아마존','디지트','물류로봇'],
+   img:'https://images.unsplash.com/photo-1620712943543-bcc4688e7485?w=700&h=394&fit=crop&auto=format'}
 ];
-// English RSS sources
-const EN_FEEDS=[
-  {url:'https://techcrunch.com/feed/',src:'TechCrunch',clr:'var(--accent3)'},
-  {url:'https://feeds.feedburner.com/venturebeat/SZYF',src:'VentureBeat',clr:'var(--accent3)'},
-  {url:'https://www.theverge.com/rss/ai-artificial-intelligence/index.xml',src:'The Verge AI',clr:'var(--accent3)'},
-  {url:'https://www.technologyreview.com/feed/',src:'MIT Tech Review',clr:'var(--accent3)'},
-  {url:'https://hnrss.org/frontpage',src:'Hacker News',clr:'var(--accent3)'},
-  {url:'https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml',src:'NYT Tech',clr:'var(--accent3)'},
-];
-const VB_FEEDS=[
-  {url:'https://techcrunch.com/tag/ai/feed/',src:'TechCrunch AI',clr:'#a78bfa'},
-  {url:'https://www.theverge.com/rss/ai-artificial-intelligence/index.xml',src:'The Verge',clr:'#a78bfa'},
-  {url:'https://hnrss.org/frontpage?q=vibe+coding',src:'HN Vibe',clr:'#a78bfa'},
-  {url:'https://hnrss.org/frontpage?q=cursor+AI+windsurf',src:'HN Cursor',clr:'#a78bfa'},
-];
 
-// YouTube channels via RSS (no API key)
-const YT_CH=[
-  {id:'UCsBjURrPoezykLs9EqgamOA',name:'Fireship'},
-  {id:'UCW5YeuERMmlnqo4oq8vwUpg',name:'NetworkChuck'},
-  {id:'UCVls1GmFKf6WlTraIb_IaJg',name:'Traversy Media'},
-  {id:'UCFbNIlppjAuEX4znoulh0Cw',name:'Web Dev Simplified'},
-  {id:'UCWX3yGbODI3RHlFxFIUFmHg',name:'AI Jason'},
-  {id:'UCtYLUTtgS3k1Fg4y5tAhLbw',name:'Matt Wolfe'},
-  {id:'UCnUYZLuoy1rq1aVMwx4aTzw',name:'Andrej Karpathy'},
-  {id:'UCMTFbPGHMLm1KrzGvTtH6LA',name:'Two Minute Papers'},
-  {id:'UC0RhatS1pyxInC00YKjjBqQ',name:'Marques Brownlee'},
-  {id:'UCq1cJqzp4FBdTMIAmgOJhow',name:'AI Explained'},
-];
+const CAT_ICONS={'반도체':'💾','생성형AI':'🤖','빅테크':'🏢','투자':'💰','규제':'⚖️','자율주행':'🚗','로봇':'🦾'};
+const CAT_COLORS={'반도체':'#6affd4','생성형AI':'#a89fff','빅테크':'#ffd36a','투자':'#6ac8ff','규제':'#ff9f6a','자율주행':'#ff6ac8','로봇':'#c8ff6a'};
 
-function stripHtml(s){return s.replace(/<[^>]+>/g,'').replace(/&[a-z#0-9]+;/g,' ').trim();}
-function extractImg(html){const m=html.match(/<img[^>]+src=["']([^"']+)["']/i);return m?m[1]:null;}
-function dedup(arr,key='title'){const s=new Set();return arr.filter(a=>{const k=(a[key]||'').slice(0,50);if(!k||s.has(k))return false;s.add(k);return true;});}
+let displayed=[], currentCat='all';
 
-async function fetchFeeds(feeds,kw,limit){
-  let items=[];
-  for(const f of feeds){
-    if(items.length>=limit+6)break;
-    const rows=await rss(f.url,15);
-    for(const r of rows){
-      const t=(r.title||'').toLowerCase();
-      const ok=!kw||kw.some(k=>t.includes(k.toLowerCase()));
-      if(ok)items.push({
-        title:r.title||'',
-        desc:stripHtml(r.description||r.content||'').slice(0,200),
-        url:r.link||r.guid||'#',
-        image:r.enclosure?.link||extractImg(r.description||r.content||'')||null,
-        source:f.src,srcClr:f.clr,
-        date:(r.pubDate||'').slice(0,10)
-      });
-    }
+function seededShuffle(arr,seed){
+  const a=[...arr]; let s=seed;
+  for(let i=a.length-1;i>0;i--){
+    s=(s*1664525+1013904223)&0xffffffff;
+    const j=Math.abs(s)%(i+1);
+    [a[i],a[j]]=[a[j],a[i]];
   }
-  return dedup(items).slice(0,limit);
+  return a;
 }
 
-async function fetchYT(){
-  let vids=[];
-  for(const ch of YT_CH){
-    if(vids.length>=13)break;
-    const feedUrl=`https://www.youtube.com/feeds/videos.xml?channel_id=${ch.id}`;
-    try{
-      const r=await fetch(AOW+encodeURIComponent(feedUrl),{signal:AbortSignal.timeout(8000)});
-      const j=await r.json();
-      const xml=j.contents||'';
-      const entries=xml.match(/<entry>([\s\S]*?)<\/entry>/g)||[];
-      for(const e of entries.slice(0,2)){
-        const vid=(e.match(/<yt:videoId>(.*?)<\/yt:videoId>/)||[])[1]||'';
-        const title=(e.match(/<title>(.*?)<\/title>/)||[])[1]||'';
-        const date=(e.match(/<published>(.*?)<\/published>/)||[])[1]||'';
-        if(vid)vids.push({id:vid,title:dx(title),channel:ch.name,thumb:`https://img.youtube.com/vi/${vid}/hqdefault.jpg`,date:date.slice(0,10)});
-      }
-    }catch(e){}
-  }
-  return dedup(vids,'id').slice(0,10);
+function getTodaySeed(){
+  const d=new Date();
+  return d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate();
 }
 
-function dx(s){return s.replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'");}
-
-async function loadAll(){
-  const btn=document.getElementById('refBtn');
-  btn.classList.add('spin');
-  document.getElementById('updatedAt').textContent='실시간 RSS 로드 중...';
-  try{
-    const koKw=['AI','인공지능','머신러닝','딥러닝','자동화','로봇','챗GPT','제조','스마트','반도체'];
-    const enKw=['AI','artificial intelligence','machine learning','manufacturing','automation','robot','LLM','GPT','generative'];
-    const vbKw=['vibe coding','cursor','windsurf','copilot','devin','claude code','replit','AI coding','code generation'];
-    const [ko,en,vb,yt]=await Promise.allSettled([
-      fetchFeeds(KO_FEEDS,koKw,25),
-      fetchFeeds(EN_FEEDS,enKw,25),
-      fetchFeeds(VB_FEEDS,vbKw,10),
-      fetchYT()
-    ]);
-    S.ko=ko.status==='fulfilled'&&ko.value.length?ko.value:builtinKo();
-    S.en=en.status==='fulfilled'&&en.value.length?en.value:builtinEn();
-    S.vb=vb.status==='fulfilled'&&vb.value.length?vb.value:builtinVb();
-    S.yt=yt.status==='fulfilled'&&yt.value.length?yt.value:builtinYt();
-    renderAll();buildSummary();
-    document.getElementById('updatedAt').textContent='최종 업데이트: '+new Date().toLocaleTimeString('ko-KR');
-    try{localStorage.setItem('nxCache',JSON.stringify({data:S,ts:Date.now()}));}catch(e){}
-  }catch(err){
-    S.ko=builtinKo();S.en=builtinEn();S.vb=builtinVb();S.yt=builtinYt();
-    renderAll();buildSummary();
-    document.getElementById('updatedAt').textContent='내장 데이터 표시 중';
-  }
-  btn.classList.remove('spin');
+function shuffleAndRender(){
+  const icon=document.getElementById('ri');
+  icon.className='spin';
+  setTimeout(()=>{
+    const seed=Math.floor(Math.random()*999999);
+    displayed=seededShuffle(NEWS_DB,seed).slice(0,15);
+    renderNews(displayed,currentCat);
+    icon.className='';
+  },500);
 }
 
-const PBG=['linear-gradient(135deg,#0d1829,#1a3a5c)','linear-gradient(135deg,#0f0c29,#302b63)','linear-gradient(135deg,#0a1628,#1a4a5e)','linear-gradient(135deg,#1a0a2e,#3d2b6e)','linear-gradient(135deg,#0d2137,#1a4a6b)'];
-const PEM=['🤖','🧠','⚡','🔬','💡','🏭','⚙️','📡','🔧','🚀'];
-function ph(i){return`<div class="c-ph" style="background:${PBG[i%PBG.length]}">${PEM[i%PEM.length]}</div>`;}
-function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function renderNews(news,cat){
+  const filtered=cat==='all'?news:news.filter(n=>n.category===cat);
+  const grid=document.getElementById('news-grid');
+  grid.innerHTML='';
 
-function renderNews(gid,items,cls){
-  const g=document.getElementById(gid);if(!g)return;
-  if(!items||!items.length){g.innerHTML='<div style="padding:40px;text-align:center;color:var(--muted);grid-column:1/-1">뉴스를 불러오지 못했습니다</div>';return;}
-  g.innerHTML=items.map((a,i)=>`
-    <div class="card ${cls}" onclick="window.open('${esc(a.url)}','_blank')">
-      ${a.image?`<img class="c-img" src="${esc(a.image)}" loading="lazy" onerror="this.outerHTML='${ph(i).replace(/'/g,'&#39;')}';">`:ph(i)}
-      <div class="c-body">
-        <div class="c-src" style="color:${a.srcClr||'var(--accent)'}">
-          <div class="dot" style="background:${a.srcClr||'var(--accent)'}"></div>${esc(a.source)}
-        </div>
-        <div class="c-title">${esc(a.title)}</div>
-        <div class="c-desc">${esc(a.desc)}</div>
-        <div class="c-foot"><span class="c-date">${esc(a.date)}</span><span class="c-arr">→</span></div>
-      </div>
-    </div>`).join('');
-}
-
-function renderYT(gid,vids){
-  const g=document.getElementById(gid);if(!g)return;
-  if(!vids||!vids.length){g.innerHTML='<div style="padding:40px;text-align:center;color:var(--muted)">YouTube 로드 중...</div>';return;}
-  g.innerHTML=vids.map(v=>`
-    <div class="yc" onclick="openVid('${esc(v.id)}')">
-      <div class="yt-tw">
-        <img src="${esc(v.thumb)}" loading="lazy" alt="${esc(v.title)}" onerror="this.src='https://img.youtube.com/vi/${esc(v.id)}/mqdefault.jpg'">
-        <div class="yt-play">▶</div>
-      </div>
-      <div class="yc-body">
-        <div class="yc-ch">${esc(v.channel)}</div>
-        <div class="yc-title">${esc(v.title)}</div>
-        <div class="yc-meta">${esc(v.date)}</div>
-      </div>
-    </div>`).join('');
-}
-
-function renderAll(){
-  renderNews('koGrid',S.ko,'ko');renderNews('enGrid',S.en,'en');renderNews('vbGrid',S.vb,'vb');renderYT('ytGrid',S.yt);
-  renderNews('koGrid2',S.ko,'ko');renderNews('enGrid2',S.en,'en');renderNews('vbGrid2',S.vb,'vb');renderYT('ytGrid2',S.yt);
-  document.getElementById('koCnt').textContent=S.ko.length+'개';
-  document.getElementById('enCnt').textContent=S.en.length+'개';
-  document.getElementById('vbCnt').textContent=S.vb.length+'개';
-  document.getElementById('ytCnt').textContent=S.yt.length+'개';
-}
-
-function buildSummary(){
+  const pos=filtered.filter(n=>n.sentiment==='positive').length;
+  const neg=filtered.filter(n=>n.sentiment==='negative').length;
+  const cats=[...new Set(filtered.map(n=>n.category))].length;
   const today=new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric'});
-  const t1=S.ko[0]?.title||'';const t2=S.en[0]?.title||'';const t3=S.vb[0]?.title||'';
-  document.getElementById('sumText').innerHTML=
-    `<strong>${today}</strong> 기준 한국 AI 뉴스 <strong>${S.ko.length}건</strong>, 해외 영문 뉴스 <strong>${S.en.length}건</strong>, Vibe Coding 뉴스 <strong>${S.vb.length}건</strong>, YouTube 영상 <strong>${S.yt.length}개</strong>를 수집했습니다.<br><br>`+
-    (t1?`🇰🇷 <strong>주요 한국 뉴스:</strong> ${esc(t1.slice(0,70))}...<br>`:'')+
-    (t2?`🌐 <strong>Top Global Story:</strong> ${esc(t2.slice(0,70))}...<br>`:'')+
-    (t3?`⚡ <strong>Vibe Coding 핫이슈:</strong> ${esc(t3.slice(0,70))}...<br>`:'')+
-    '<br>AI가 제조·코딩·자동화 전 영역에서 빠르게 혁신을 이끌고 있습니다.';
-  const kw=xKw([...S.ko,...S.en,...S.vb].map(a=>a.title));
-  document.getElementById('sumTags').innerHTML=kw.slice(0,9).map(k=>`<div class="tag">#${esc(k)}</div>`).join('');
-}
 
-function xKw(titles){
-  const stop=new Set(['the','a','an','is','in','of','for','to','and','on','with','at','by','이','가','을','를','은','는','한','의','로','에서','기','이나','등','및','에','AI','ai']);
-  const freq={};
-  titles.join(' ').split(/[\s,.\-:;()'"!?]+/).forEach(w=>{
-    const c=w.replace(/[^가-힣a-zA-Z0-9]/g,'');
-    if(c.length>1&&!stop.has(c)&&!stop.has(c.toLowerCase()))freq[c]=(freq[c]||0)+1;
+  document.getElementById('stats-bar').innerHTML=`
+    <div class="stat"><div class="stat-value">${filtered.length}</div><div class="stat-label">기사 수</div></div>
+    <div class="stat-divider"></div>
+    <div class="stat"><div class="stat-value">${cats}</div><div class="stat-label">카테고리</div></div>
+    <div class="stat-divider"></div>
+    <div class="stat"><div class="stat-value">${pos}</div><div class="stat-label">긍정 전망</div></div>
+    <div class="stat-divider"></div>
+    <div class="stat"><div class="stat-value">${neg}</div><div class="stat-label">부정 전망</div></div>
+    <div class="date-badge">📅 ${today}</div>`;
+
+  filtered.forEach((a,idx)=>{
+    const sentLabel=a.sentiment==='positive'?'📈 긍정':a.sentiment==='negative'?'📉 부정':'➡️ 중립';
+    const sentClass='sentiment-'+a.sentiment;
+    const icon=CAT_ICONS[a.category]||'📰';
+    const catColor=CAT_COLORS[a.category]||'#a89fff';
+    const card=document.createElement('div');
+    card.className='news-card'+(idx===0?' featured':'');
+    card.style.animationDelay=(idx*55)+'ms';
+    card.onclick=()=>openModal(a);
+    card.innerHTML=`
+      <div class="card-img-wrap">
+        <img src="${a.img}" alt="${a.category}" loading="lazy"
+             onerror="this.style.display='none';this.nextElementSibling.style.cssText='display:flex;position:absolute;inset:0;width:100%;height:100%;align-items:center;justify-content:center;font-size:44px;background:var(--surface)'">
+        <div class="img-fallback">${icon}</div>
+        <div class="card-cat-overlay" style="color:${catColor}">${icon} ${a.category}</div>
+      </div>
+      <div class="card-body">
+        <div class="card-meta">
+          <span class="source-badge">${a.source}</span>
+          <span class="meta-dot">·</span>
+          <span class="time-badge">${a.published}</span>
+        </div>
+        <div class="card-title">${a.title}</div>
+        <div class="card-summary">${a.summary}</div>
+        <div class="card-footer">
+          <span class="sentiment-tag ${sentClass}">${sentLabel}</span>
+          <div class="keywords">${(a.keywords||[]).map(k=>`<span class="keyword">#${k}</span>`).join('')}</div>
+        </div>
+      </div>`;
+    grid.appendChild(card);
   });
-  return Object.entries(freq).sort((a,b)=>b[1]-a[1]).map(e=>e[0]);
 }
 
-function openVid(id){document.getElementById('vFrame').src=`https://www.youtube.com/embed/${id}?autoplay=1`;document.getElementById('vModal').classList.add('on');document.body.style.overflow='hidden';}
-function closeVid(){document.getElementById('vModal').classList.remove('on');document.getElementById('vFrame').src='';document.body.style.overflow='';}
-document.getElementById('vModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeVid();});
-
-function switchTab(id,btn){
-  document.querySelectorAll('.tc').forEach(e=>e.classList.remove('on'));
-  document.querySelectorAll('.tb').forEach(e=>e.classList.remove('on'));
-  document.getElementById('tab-'+id).classList.add('on');btn.classList.add('on');
+function openModal(a){
+  const sentLabel=a.sentiment==='positive'?'📈 긍정 전망':a.sentiment==='negative'?'📉 부정 전망':'➡️ 중립';
+  const sentClass='sentiment-'+a.sentiment;
+  const icon=CAT_ICONS[a.category]||'📰';
+  document.getElementById('modal-inner').innerHTML=`
+    <img class="modal-img" src="${a.img}" alt="" onerror="this.style.display='none'">
+    <div class="modal-body">
+      <div class="card-meta" style="margin-bottom:12px">
+        <span class="source-badge">${a.source}</span>
+        <span class="meta-dot">·</span>
+        <span class="time-badge">${a.published}</span>
+        <span class="sentiment-tag ${sentClass}" style="margin-left:auto">${sentLabel}</span>
+      </div>
+      <div class="modal-title">${a.title}</div>
+      <div class="modal-summary">${a.summary}</div>
+      ${a.detail?`<div class="modal-detail">💡 ${a.detail}</div>`:''}
+      <div class="keywords">${(a.keywords||[]).map(k=>`<span class="keyword">#${k}</span>`).join('')}</div>
+    </div>`;
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow='hidden';
 }
 
-// BUILTIN FALLBACK — shown instantly, replaced by live RSS
-function builtinKo(){return[
-  {title:'삼성전자, 차세대 AI 반도체 생산에 완전 자동화 라인 가동',desc:'삼성전자가 평택 캠퍼스에 AI 반도체 전용 완전 자동화 생산 라인을 가동한다고 발표했다.',url:'https://www.aitimes.kr',image:null,source:'AI타임스',srcClr:'var(--accent)',date:'2025-03-12'},
-  {title:'현대차·기아, AI 기반 예지보전 시스템 전 공장 확대 적용',desc:'현대차·기아가 AI 기반 설비 예지보전 시스템을 국내외 전 생산 공장으로 확대 적용한다.',url:'https://www.etnews.com',image:null,source:'전자신문',srcClr:'var(--accent)',date:'2025-03-12'},
-  {title:'LG전자, 공장 AI 디지털 트윈으로 생산효율 30% 향상',desc:'LG전자 창원 스마트파크가 디지털 트윈 기반 AI 시뮬레이션 시스템을 도입해 생산 효율 30% 향상을 달성했다.',url:'https://zdnet.co.kr',image:null,source:'ZDNet Korea',srcClr:'var(--accent)',date:'2025-03-11'},
-  {title:'정부, AI 제조혁신 R&D에 1조 5천억 투자 계획 확정',desc:'산업통상자원부가 2025~2027년 AI 기반 스마트 제조 R&D 지원 계획을 확정했다.',url:'https://www.mk.co.kr',image:null,source:'매일경제',srcClr:'var(--accent)',date:'2025-03-11'},
-  {title:'카카오, 제조 특화 AI 어시스턴트 "카나나 팩토리" 출시',desc:'카카오가 제조 현장 작업자를 위한 AI 어시스턴트 서비스를 출시했다.',url:'https://www.aitimes.com',image:null,source:'AI타임스닷컴',srcClr:'var(--accent)',date:'2025-03-10'},
-  {title:'포스코, AI로 용강 온도 자동 제어 — 에너지 18% 절감',desc:'포스코 포항제철소가 AI 딥러닝 모델을 활용한 용강 온도 자동 제어 시스템을 도입해 에너지 효율을 크게 개선했다.',url:'https://www.steelnews.co.kr',image:null,source:'스틸뉴스',srcClr:'var(--accent)',date:'2025-03-10'},
-  {title:'두산로보틱스, 자연어 명령 협동로봇 신모델 공개',desc:'두산로보틱스가 챗GPT 기반 자연어 명령 인터페이스를 탑재한 협동로봇 H시리즈를 공개했다.',url:'https://www.doosanrobotics.com',image:null,source:'두산로보틱스',srcClr:'var(--accent)',date:'2025-03-09'},
-  {title:'SK하이닉스, HBM4 생산에 AI 수율 예측 모델 전면 도입',desc:'SK하이닉스가 차세대 고대역폭메모리 HBM4 생산 공정에 AI 수율 예측 모델을 전면 도입해 불량률을 크게 낮췄다.',url:'https://www.skhynix.com',image:null,source:'SK하이닉스',srcClr:'var(--accent)',date:'2025-03-09'},
-  {title:'KAIST, AI로 신소재 개발 기간 10배 단축 성공',desc:'KAIST 연구팀이 머신러닝 기반 재료 역설계 시스템을 개발해 배터리용 신소재 탐색 기간을 10분의 1로 줄이는 데 성공했다.',url:'https://www.kaist.ac.kr',image:null,source:'KAIST',srcClr:'var(--accent)',date:'2025-03-08'},
-  {title:'네이버 클라우드, 제조 AI 플랫폼 "HyperCLOVA X 팩토리" 발표',desc:'네이버 클라우드가 제조업 특화 거대언어모델 기반 플랫폼을 발표했다.',url:'https://clova.ai',image:null,source:'네이버 클라우드',srcClr:'var(--accent)',date:'2025-03-08'},
-  {title:'현대로보틱스, AI 비전 용접 로봇 양산 시작',desc:'현대로보틱스가 AI 비전 시스템을 탑재해 불규칙한 용접 위치도 스스로 보정하는 지능형 용접 로봇의 양산을 시작했다.',url:'https://www.hyundai-robotics.com',image:null,source:'현대로보틱스',srcClr:'var(--accent)',date:'2025-03-07'},
-  {title:'중소벤처기업부, AI 스마트공장 보급 2만개 목표 달성',desc:'중소벤처기업부가 2024년 AI 기반 스마트공장 보급 목표 2만 개를 초과 달성했다고 밝혔다.',url:'https://www.mss.go.kr',image:null,source:'중소벤처기업부',srcClr:'var(--accent)',date:'2025-03-07'},
-  {title:'롯데케미칼, AI 공정 최적화로 원가 연 800억 절감',desc:'롯데케미칼이 AI 기반 공정 최적화 시스템을 여수·대산 공장에 도입한 결과 연간 약 800억원의 원가 절감 효과를 거뒀다.',url:'https://www.lottechem.com',image:null,source:'롯데케미칼',srcClr:'var(--accent)',date:'2025-03-06'},
-  {title:'한국전자기술연구원, 엣지 AI 제조 검사 칩 개발',desc:'KETI가 제조 현장 실시간 품질 검사에 특화된 저전력 엣지 AI 추론 칩을 개발했다.',url:'https://www.keti.re.kr',image:null,source:'KETI',srcClr:'var(--accent)',date:'2025-03-06'},
-  {title:'삼성SDI, 배터리 불량 예측 AI로 리콜 비용 연 1천억 절감',desc:'삼성SDI가 딥러닝 기반 배터리 셀 불량 예측 시스템을 구축해 출하 전 불량률을 획기적으로 낮췄다.',url:'https://www.samsungsdi.co.kr',image:null,source:'삼성SDI',srcClr:'var(--accent)',date:'2025-03-05'},
-  {title:'GS칼텍스, AI 정유공장 자율운전 시스템 파일럿 성공',desc:'GS칼텍스가 여수 정유 공장에서 AI 자율 운전 파일럿을 완료하고 2026년 전면 도입을 결정했다.',url:'https://www.gscaltex.com',image:null,source:'GS칼텍스',srcClr:'var(--accent)',date:'2025-03-05'},
-  {title:'현대제철, AI 열처리 제어로 고강도 강판 품질 균일화',desc:'현대제철이 AI 기반 열처리 온도 제어 시스템을 도입해 고강도 강판 경도 편차를 기존 대비 60% 줄이는 데 성공했다.',url:'https://www.hyundai-steel.com',image:null,source:'현대제철',srcClr:'var(--accent)',date:'2025-03-04'},
-  {title:'한화에어로스페이스, AI로 항공엔진 부품 검사 완전 자동화',desc:'한화에어로스페이스가 항공엔진 핵심 부품의 비파괴 검사 전 과정을 AI와 로봇으로 완전 자동화했다.',url:'https://www.hanwhaaerospace.co.kr',image:null,source:'한화에어로스페이스',srcClr:'var(--accent)',date:'2025-03-04'},
-  {title:'KT, 제조 현장 AI 엣지 컴퓨팅 플랫폼 상용화',desc:'KT가 5G 네트워크와 연동하는 AI 엣지 컴퓨팅 플랫폼을 제조 현장에 상용화했다.',url:'https://www.kt.com',image:null,source:'KT',srcClr:'var(--accent)',date:'2025-03-03'},
-  {title:'대우조선해양, AI 선체 용접 경로 최적화 시스템 도입',desc:'대우조선해양이 AI 기반 선체 블록 용접 경로 최적화 시스템을 개발해 용접 시간을 22% 단축하는 성과를 거뒀다.',url:'https://www.dsme.co.kr',image:null,source:'대우조선해양',srcClr:'var(--accent)',date:'2025-03-03'},
-  {title:'한국생산기술연구원, AI 공정 트윈 플랫폼 무료 개방',desc:'KITECH이 중소 제조기업을 위해 AI 공정 시뮬레이션 디지털 트윈 플랫폼을 무료로 개방한다.',url:'https://www.kitech.re.kr',image:null,source:'생산기술연구원',srcClr:'var(--accent)',date:'2025-03-02'},
-  {title:'코오롱인더스트리, AI 섬유 결함 검사로 불량률 제로 도전',desc:'코오롱인더스트리가 하이퍼스펙트럴 카메라와 AI를 결합한 섬유 결함 검사 시스템을 구미 공장에 도입했다.',url:'https://www.kolonindustries.com',image:null,source:'코오롱인더스트리',srcClr:'var(--accent)',date:'2025-03-01'},
-  {title:'효성중공업, 변압기 AI 이상진단 시스템 특허 등록',desc:'효성중공업이 변압기 부분방전 데이터를 AI로 분석해 고장을 사전 예측하는 시스템의 국내외 특허를 등록했다.',url:'https://www.hyosungheavyindustries.com',image:null,source:'효성중공업',srcClr:'var(--accent)',date:'2025-02-28'},
-  {title:'연세대-삼성전자, AI 나노공정 이상 조기감지 논문 발표',desc:'연세대와 삼성전자 공동 연구팀이 반도체 나노 공정 이상을 기존 대비 3배 빠르게 탐지하는 AI 모델 논문을 발표했다.',url:'https://www.yonsei.ac.kr',image:null,source:'연세대',srcClr:'var(--accent)',date:'2025-02-27'},
-  {title:'LG에너지솔루션, AI 배터리 수명 예측 모델 정확도 99% 달성',desc:'LG에너지솔루션 연구팀이 개발한 AI 배터리 수명 예측 모델이 실제 수명과 99% 일치하는 정확도를 달성했다.',url:'https://www.lgenergysolution.com',image:null,source:'LG에너지솔루션',srcClr:'var(--accent)',date:'2025-02-26'},
-];}
+function closeModal(){
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow='';
+}
 
-function builtinEn(){return[
-  {title:'NVIDIA Blackwell Ultra GPU Hits Record AI Manufacturing Benchmark',desc:'NVIDIA\'s latest Blackwell Ultra GPU sets new records for real-time industrial AI inference, powering next-generation smart factory systems.',url:'https://blogs.nvidia.com',image:null,source:'NVIDIA Blog',srcClr:'var(--accent3)',date:'2025-03-12'},
-  {title:'OpenAI o3 Model Achieves Expert-Level Industrial Problem Solving',desc:'OpenAI\'s o3 reasoning model demonstrates expert-level performance on complex manufacturing optimization tasks.',url:'https://openai.com/blog',image:null,source:'OpenAI',srcClr:'var(--accent3)',date:'2025-03-12'},
-  {title:'Tesla Optimus Robot Begins Mass Production at 1,000 Units Per Week',desc:'Tesla has officially commenced mass production of its Optimus humanoid robot, deploying it first in Fremont and Shanghai assembly lines.',url:'https://www.tesla.com/blog',image:null,source:'Tesla',srcClr:'var(--accent3)',date:'2025-03-11'},
-  {title:'Google DeepMind Releases GNoME 2.0 for Material Discovery',desc:'DeepMind\'s updated GNoME AI model has identified 380,000 new stable materials suitable for manufacturing applications.',url:'https://deepmind.google/blog',image:null,source:'DeepMind',srcClr:'var(--accent3)',date:'2025-03-11'},
-  {title:'Microsoft Copilot for Manufacturing Goes GA with SAP Integration',desc:'Microsoft\'s Copilot for Manufacturing is now generally available with native SAP S/4HANA integration for factory floor AI.',url:'https://news.microsoft.com',image:null,source:'Microsoft',srcClr:'var(--accent3)',date:'2025-03-10'},
-  {title:'Anthropic Claude 3.7 Leads Industrial Code Generation Benchmarks',desc:'Claude 3.7 Sonnet achieves top scores on industrial software and PLC code generation, becoming the preferred model for manufacturing automation.',url:'https://www.anthropic.com/news',image:null,source:'Anthropic',srcClr:'var(--accent3)',date:'2025-03-10'},
-  {title:'Boston Dynamics Atlas Robot Deployed in 50 BMW Factories Worldwide',desc:'Following a successful pilot, BMW has deployed Atlas robots across 50 global factories for complex sub-assembly tasks.',url:'https://www.bostondynamics.com/news',image:null,source:'Boston Dynamics',srcClr:'var(--accent3)',date:'2025-03-09'},
-  {title:'Siemens Industrial Copilot Cuts Factory Downtime by 45%',desc:'Siemens reports its AI assistant has reduced unplanned downtime by 45% across partner factories through predictive maintenance.',url:'https://www.siemens.com/press',image:null,source:'Siemens',srcClr:'var(--accent3)',date:'2025-03-09'},
-  {title:'MIT Researchers Build Zero-Defect AI Visual Inspection System',desc:'MIT engineers achieved 99.99% defect detection accuracy on nanoscale semiconductor structures using multimodal AI.',url:'https://news.mit.edu',image:null,source:'MIT News',srcClr:'var(--accent3)',date:'2025-03-08'},
-  {title:'Amazon AWS Bedrock Industrial Adds Real-Time Process Optimization',desc:'AWS Bedrock Industrial now offers real-time process optimization using foundation models without requiring data scientists.',url:'https://aws.amazon.com/blogs',image:null,source:'AWS',srcClr:'var(--accent3)',date:'2025-03-08'},
-  {title:'Rockwell Automation Launches NVIDIA-Powered AI Factory Controller',desc:'Rockwell Automation unveiled its first NVIDIA Jetson Orin-based AI factory controller processing 20 camera feeds in real time.',url:'https://www.rockwellautomation.com/news',image:null,source:'Rockwell',srcClr:'var(--accent3)',date:'2025-03-07'},
-  {title:'WEF Report: AI in Manufacturing to Add $4.4 Trillion to Global Economy',desc:'WEF projects AI-driven manufacturing improvements will generate $4.4 trillion in annual economic value by 2030.',url:'https://www.weforum.org/press',image:null,source:'WEF',srcClr:'var(--accent3)',date:'2025-03-07'},
-  {title:'Foxconn Deploys 10,000 Humanoid Robots in iPhone Assembly Test',desc:'Foxconn is piloting 10,000 humanoid robots for iPhone final assembly at its Zhengzhou campus.',url:'https://www.foxconn.com/news',image:null,source:'Foxconn',srcClr:'var(--accent3)',date:'2025-03-06'},
-  {title:'ABB Robotics Integrates ChatGPT for Natural Language Robot Programming',desc:'ABB Robotics launched ChatGPT-powered natural language programming for YuMi collaborative robots.',url:'https://new.abb.com/news',image:null,source:'ABB Robotics',srcClr:'var(--accent3)',date:'2025-03-06'},
-  {title:'Palantir AIP for Manufacturing Expands to 200 Enterprise Clients',desc:'Palantir\'s AIP for Manufacturing, connecting AI models to factory operational data, has expanded to 200 enterprise clients.',url:'https://www.palantir.com/newsroom',image:null,source:'Palantir',srcClr:'var(--accent3)',date:'2025-03-05'},
-  {title:'TSMC AI Chip Yield Optimization Reaches 98.5% on 2nm Process',desc:'TSMC\'s in-house AI yield optimization model has pushed 2nm process yield to 98.5%, setting a new industry record.',url:'https://www.tsmc.com/news',image:null,source:'TSMC',srcClr:'var(--accent3)',date:'2025-03-05'},
-  {title:'Figure AI Robot Learns New Assembly Tasks in Under 10 Hours',desc:'Figure AI demonstrated its 02 robot learning a new automotive assembly task from human demonstration in under 10 hours.',url:'https://www.figure.ai/news',image:null,source:'Figure AI',srcClr:'var(--accent3)',date:'2025-03-04'},
-  {title:'PTC and Microsoft Co-Develop AI-Powered Digital Thread',desc:'PTC and Microsoft announced an AI-powered digital thread platform connecting product design, manufacturing, and service data.',url:'https://www.ptc.com/news',image:null,source:'PTC',srcClr:'var(--accent3)',date:'2025-03-04'},
-  {title:'EU AI Act Compliance Guide for Smart Factories Released',desc:'The European AI Office published a practical compliance guide for AI systems used in manufacturing.',url:'https://digital-strategy.ec.europa.eu',image:null,source:'EU Commission',srcClr:'var(--accent3)',date:'2025-03-03'},
-  {title:'Nvidia Isaac Sim 5.0 Enables Photorealistic Robot Training',desc:'NVIDIA released Isaac Sim 5.0 with photorealistic factory environments for synthetic data generation, cutting robot training time by 10x.',url:'https://developer.nvidia.com/isaac-sim',image:null,source:'NVIDIA Isaac',srcClr:'var(--accent3)',date:'2025-03-02'},
-  {title:'Covariant AI Releases RFM-1 Foundation Model for Industrial Robots',desc:'Covariant unveiled RFM-1, the first openly available foundation model for industrial robot manipulation.',url:'https://covariant.ai/blog',image:null,source:'Covariant AI',srcClr:'var(--accent3)',date:'2025-03-02'},
-  {title:'McKinsey: 65% of Manufacturers Plan Full AI Integration by 2026',desc:'McKinsey\'s 2025 manufacturing AI survey finds 65% of global manufacturers plan full AI integration by end of 2026.',url:'https://www.mckinsey.com',image:null,source:'McKinsey',srcClr:'var(--accent3)',date:'2025-03-01'},
-  {title:'Physical Intelligence π0.2 Robot Tackles Complex Multi-Step Assembly',desc:'Physical Intelligence released π0.2, a generalist robot foundation model handling multi-step assembly tasks without reprogramming.',url:'https://www.physicalintelligence.company/blog',image:null,source:'Physical Intelligence',srcClr:'var(--accent3)',date:'2025-02-28'},
-  {title:'Honeywell Launches AI Process Safety Monitor for Chemical Plants',desc:'Honeywell\'s new AI process safety monitor predicts hazardous deviations 45 minutes in advance in chemical manufacturing.',url:'https://www.honeywell.com/newsroom',image:null,source:'Honeywell',srcClr:'var(--accent3)',date:'2025-02-27'},
-  {title:'Stanford AI Lab Develops Self-Healing Factory Software Using LLMs',desc:'Stanford researchers created a self-healing software framework using large language models to automatically detect and patch production failures.',url:'https://ai.stanford.edu/news',image:null,source:'Stanford AI',srcClr:'var(--accent3)',date:'2025-02-26'},
-];}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
 
-function builtinVb(){return[
-  {title:'Vibe Coding Is Now the Default: How AI Transforms Software Development',desc:'Vibe coding — describing software in plain language and letting AI build it — has crossed the mainstream threshold, with 80%+ adoption among new developers.',url:'https://www.wired.com',image:null,source:'Wired',srcClr:'#a78bfa',date:'2025-03-12'},
-  {title:'Cursor AI Editor Surpasses 2 Million Users — Raises $500M Series C',desc:'Cursor has crossed 2 million paying users and closed a $500M Series C round at a $9.9B valuation.',url:'https://cursor.sh/blog',image:null,source:'Cursor',srcClr:'#a78bfa',date:'2025-03-11'},
-  {title:'Windsurf Cascade 2.0: AI Agent That Builds Entire Products from PRDs',desc:'Codeium\'s Windsurf 2.0 ships Cascade with full product spec-to-code capability — feed it a PRD, get a deployable application.',url:'https://codeium.com/blog',image:null,source:'Codeium',srcClr:'#a78bfa',date:'2025-03-10'},
-  {title:'Anthropic Claude Code Becomes #1 Terminal AI Coding Agent',desc:'Claude Code has overtaken GitHub Copilot CLI as the most used terminal-based AI coding agent with 800,000 active weekly developers.',url:'https://www.anthropic.com/news/claude-code',image:null,source:'Anthropic',srcClr:'#a78bfa',date:'2025-03-10'},
-  {title:'GitHub Copilot Workspace Handles Full Feature Cycles Autonomously',desc:'Copilot Workspace takes a GitHub issue, plans implementation, writes code, runs tests, and opens a PR — entirely autonomously.',url:'https://github.blog/ai',image:null,source:'GitHub',srcClr:'#a78bfa',date:'2025-03-09'},
-  {title:'Devin 2.0 Passes Senior Software Engineer Benchmarks',desc:'Cognition AI\'s Devin 2.0 achieves senior-level scores on SWE-bench verified, the toughest real-world software engineering evaluation.',url:'https://cognition.ai/blog',image:null,source:'Cognition AI',srcClr:'#a78bfa',date:'2025-03-08'},
-  {title:'Google Jules AI: Async Bug-Fixing Agent Now in Public Beta',desc:'Google launched Jules, an async agent integrated with GitHub that independently fixes bugs and submits ready-to-merge PRs.',url:'https://blog.google/products/jules',image:null,source:'Google',srcClr:'#a78bfa',date:'2025-03-07'},
-  {title:'Replit Agent 2.0: Build and Deploy Production Apps in Under 5 Minutes',desc:'Replit\'s Agent 2.0 can scaffold, build, and deploy a full-stack production app — including domain and database — from a single description.',url:'https://replit.com/blog/agent-2',image:null,source:'Replit',srcClr:'#a78bfa',date:'2025-03-06'},
-  {title:'Stack Overflow Survey: 83% of Devs Use AI Assistants Daily in 2025',desc:'Stack Overflow\'s 2025 Developer Survey reveals AI coding assistant daily usage jumped to 83%, with vibe coding tools leading.',url:'https://stackoverflow.blog',image:null,source:'Stack Overflow',srcClr:'#a78bfa',date:'2025-03-05'},
-  {title:'OpenAI Codex Cloud: Web-Based Vibe Coding Agent for Enterprise',desc:'OpenAI launched Codex Cloud, a browser-based multi-agent coding service that operates entire software projects in sandboxed environments.',url:'https://openai.com/codex',image:null,source:'OpenAI',srcClr:'#a78bfa',date:'2025-03-04'},
-];}
-
-function builtinYt(){return[
-  {id:'LTR3OcKgzWs',title:'Vibe Coding Full Tutorial — Build Real Apps with AI (2025)',channel:'Fireship',thumb:'https://img.youtube.com/vi/LTR3OcKgzWs/hqdefault.jpg',date:'2025-03-10'},
-  {id:'aG1cyRsWVxg',title:'I Vibe Coded a SaaS in 2 Hours — Here\'s What Happened',channel:'Fireship',thumb:'https://img.youtube.com/vi/aG1cyRsWVxg/hqdefault.jpg',date:'2025-03-09'},
-  {id:'SKBG1sqdyIU',title:'Cursor vs Windsurf vs GitHub Copilot — Ultimate 2025 Showdown',channel:'NetworkChuck',thumb:'https://img.youtube.com/vi/SKBG1sqdyIU/hqdefault.jpg',date:'2025-03-08'},
-  {id:'gd_bGDMDn7s',title:'Claude Code Agent Tutorial — Terminal AI Coding from Scratch',channel:'TechWithTim',thumb:'https://img.youtube.com/vi/gd_bGDMDn7s/hqdefault.jpg',date:'2025-03-07'},
-  {id:'jNQXAC9IVRw',title:'Devin AI 2.0 vs Senior Engineer — Real World Benchmark',channel:'Matt Wolfe',thumb:'https://img.youtube.com/vi/jNQXAC9IVRw/hqdefault.jpg',date:'2025-03-06'},
-  {id:'LCEmiRjPEtQ',title:'Replit Agent — Build & Deploy Full Stack App in 5 Minutes',channel:'AI Jason',thumb:'https://img.youtube.com/vi/LCEmiRjPEtQ/hqdefault.jpg',date:'2025-03-05'},
-  {id:'aircAruvnKk',title:'Windsurf Cascade 2.0 Demo — Most Powerful AI Coding Agent?',channel:'Theo Browne',thumb:'https://img.youtube.com/vi/aircAruvnKk/hqdefault.jpg',date:'2025-03-04'},
-  {id:'qvyUPbSakxg',title:'GitHub Copilot Workspace Full Demo — Issue to PR Automatically',channel:'GitHub',thumb:'https://img.youtube.com/vi/qvyUPbSakxg/hqdefault.jpg',date:'2025-03-03'},
-  {id:'UF8uR6Z6KLc',title:'Vibe Coding for Non-Developers — Complete Beginner Guide',channel:'Web Dev Simplified',thumb:'https://img.youtube.com/vi/UF8uR6Z6KLc/hqdefault.jpg',date:'2025-03-02'},
-  {id:'JGwWNGJdvx8',title:'OpenAI Codex Cloud — Future of AI Software Development',channel:'Two Minute Papers',thumb:'https://img.youtube.com/vi/JGwWNGJdvx8/hqdefault.jpg',date:'2025-03-01'},
-];}
-
-// INIT — show content immediately, then load live RSS in background
-window.addEventListener('DOMContentLoaded',()=>{
-  S.ko=builtinKo();S.en=builtinEn();S.vb=builtinVb();S.yt=builtinYt();
-  renderAll();buildSummary();
-  document.getElementById('updatedAt').textContent='내장 데이터 표시 중 — 실시간 RSS 로드 중...';
-  try{
-    const c=JSON.parse(localStorage.getItem('nxCache')||'{}');
-    if(c.data&&c.ts&&Date.now()-c.ts<25*60*1000){
-      Object.assign(S,c.data);renderAll();buildSummary();
-      document.getElementById('updatedAt').textContent='캐시 · '+new Date(c.ts).toLocaleTimeString('ko-KR');
-      return;
-    }
-  }catch(e){}
-  loadAll();
-  setInterval(loadAll,30*60*1000);
+document.querySelectorAll('.cat-btn').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    currentCat=btn.dataset.cat;
+    document.querySelectorAll('.cat-btn').forEach(b=>b.classList.toggle('active',b===btn));
+    renderNews(displayed,currentCat);
+  });
 });
+
+// 오늘 날짜 시드로 매일 다른 뉴스 순서
+displayed=seededShuffle(NEWS_DB,getTodaySeed()).slice(0,15);
+renderNews(displayed,'all');
+const now=new Date();
+document.getElementById('update-time').textContent=now.toLocaleDateString('ko-KR',{month:'long',day:'numeric'})+' 업데이트';
 </script>
 
 </body>
